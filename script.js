@@ -1,17 +1,23 @@
 // استيراد مكتبات Firebase من الـ CDN المباشر
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const firebaseConfig = {
-    apiKey: "AIzaSyCDpZYVh3K6SKl3RfPBhsa6tZNIPWugRSM",
-    authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
-    projectId: "hanaelkuwaitiarealestate",
-    storageBucket: "hanaelkuwaitiarealestate.firebasestorage.app",
+    apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
+    authDomain: "hanaekuwaitiarealestate.firebaseapp.com",
+    projectId: "hanaekuwaitiarealestate",
+    storageBucket: "hanaekuwaitiarealestate.firebasestorage.app",
     messagingSenderId: "977437776988",
     appId: "1:977437776988:web:d2cbc1a51ee0ce7b669a99"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// ربط دوال فايربيس وقاعدة البيانات بالـ window لتكون متاحة للجميع
+window.db = db;
+window.collection = collection;
+window.addDoc = addDoc;
 
 // Kuwait Governorates and Cities / Areas Data Structure
 const kuwaitLocations = {
@@ -24,7 +30,7 @@ const kuwaitLocations = {
     "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
 };
 
-// Users & Authentication Management (لكل مستخدم باسورد خاص به)
+// Users & Authentication Management
 let users = JSON.parse(localStorage.getItem('kuwaiti_users')) || [
     { name: "حياه", role: "admin", password: "1234" },
     { name: "ابو عمر", role: "agent", password: "112005" },
@@ -37,7 +43,6 @@ function isAdmin() {
     return currentUser && currentUser.role === 'admin';
 }
 
-// دالة للتحقق مما إذا كان المستخدم يمتلك صلاحية التعديل/الحذف على العقار
 function canModify(aptAgent) {
     if (!currentUser) return false;
     return isAdmin() || (currentUser.name === aptAgent);
@@ -55,18 +60,18 @@ function openDatabase() {
         request.onerror = (event) => reject(event.target.error);
         request.onsuccess = (event) => resolve(event.target.result);
         request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains("videos")) {
-                db.createObjectStore("videos", { keyPath: "id" });
+            const dbInstance = event.target.result;
+            if (!dbInstance.objectStoreNames.contains("videos")) {
+                dbInstance.createObjectStore("videos", { keyPath: "id" });
             }
         };
     });
 }
 
 async function saveVideoToIndexedDB(id, fileBlob) {
-    const db = await openDatabase();
+    const dbInstance = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction(["videos"], "readwrite");
+        const transaction = dbInstance.transaction(["videos"], "readwrite");
         const store = transaction.objectStore("videos");
         const request = store.put({ id: id, blob: fileBlob });
         request.onsuccess = () => resolve(true);
@@ -75,9 +80,9 @@ async function saveVideoToIndexedDB(id, fileBlob) {
 }
 
 async function getVideoFromIndexedDB(id) {
-    const db = await openDatabase();
+    const dbInstance = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction(["videos"], "readonly");
+        const transaction = dbInstance.transaction(["videos"], "readonly");
         const store = transaction.objectStore("videos");
         const request = store.get(id);
         request.onsuccess = (event) => {
@@ -127,15 +132,27 @@ async function deleteApartmentFromCloud(aptId) {
     }
 }
 
-// Authentication Handlers
+// Authentication Handlers & Initialization
 window.addEventListener('DOMContentLoaded', () => {
     initAuthModal();
     initLocationDropdowns();
     if (currentUser) {
-        document.getElementById('authModal').classList.add('hidden');
+        const authModal = document.getElementById('authModal');
+        if(authModal) authModal.classList.add('hidden');
         setupUserInterface();
     }
     fetchApartmentsFromCloud();
+
+    // ربط زر الحفظ برمجياً لضمان الاستجابة الفورية عند الضغط عليه
+    const allButtons = document.querySelectorAll('button');
+    allButtons.forEach(btn => {
+        if (btn.textContent.includes('حفظ العقار')) {
+            btn.type = "button";
+            btn.addEventListener('click', (e) => {
+                window.saveApartment(e);
+            });
+        }
+    });
 });
 
 function initAuthModal() {
@@ -143,6 +160,10 @@ function initAuthModal() {
     if (!select) return;
     select.innerHTML = users.map(u => `<option value="${u.name}">${u.name} ${u.role === 'admin' ? '(أدمن - الاء)' : '(مندوب)'}</option>`).join('');
 }
+
+window.LoginRole = function(role) {
+    console.log("تم اختيار الدور:", role);
+};
 
 window.handleLogin = function(e) {
     e.preventDefault();
@@ -208,7 +229,7 @@ window.addNewUser = function(e) {
     e.preventDefault();
     const name = document.getElementById('newUserName').value.trim();
     const role = document.getElementById('newUserRole').value;
-    const password = document.getElementById('newUserPassword')?.value || "123"; // كلمة مرور للمستخدم الجديد
+    const password = document.getElementById('newUserPassword')?.value || "123";
 
     if (users.some(u => u.name === name)) {
         alert("هذا المستخدم موجود بالفعل!");
@@ -302,7 +323,7 @@ window.switchTab = function(tabId) {
     if(tabId === 'inventory') renderInventoryDashboard();
 }
 
-// Render Main Table with Permission Check for Edit/Delete buttons
+// Render Main Table
 function renderApartmentsTable() {
     const statusF = document.getElementById('filterStatus')?.value || '';
     const dealTypeF = document.getElementById('filterDealType')?.value || '';
@@ -362,7 +383,7 @@ function renderApartmentsTable() {
 
         let ownerInfoDisplay = `<div class="font-bold text-slate-800"><i class="fa-solid fa-user-tie text-amber-600"></i> ${apt.agent || '-'}</div>`;
         
-        const canSeePhone = isAdmin() || (apt.agent === currentUser.name);
+        const canSeePhone = isAdmin() || (currentUser && apt.agent === currentUser.name);
         if (canSeePhone) {
             ownerInfoDisplay += `<div class="text-xs text-emerald-700 font-bold mt-1 bg-emerald-50 p-1.5 rounded border border-emerald-200"><i class="fa-solid fa-phone"></i> ${apt.ownerPhone || '-'} (${apt.ownerName || '-'})</div>`;
         } else {
@@ -378,7 +399,6 @@ function renderApartmentsTable() {
             openApartmentDetails(realIndex);
         };
 
-        // التحقق من الصلاحية لإظهار أزرار التعديل والحذف لمن أضافه أو الأدمن فقط
         let actionButtons = '';
         if (canModify(apt.agent)) {
             actionButtons = `
@@ -419,23 +439,22 @@ window.resetFilters = function() {
 }
 
 window.saveApartment = async function(e) {
-    e.preventDefault();
+    if(e && e.preventDefault) e.preventDefault();
     const editId = document.getElementById('editIndex')?.value || "";
 
     let existingOwnerPhone = "";
-    let originalAgent = currentUser.name;
+    let originalAgent = currentUser ? currentUser.name : "مندوب";
     let existingVideoId = "vid_" + Date.now();
 
     if (editId !== "") {
         const found = apartments.find(a => a.id === editId);
         if (found) {
-            // حماية إضافية: التأكد من الصلاحية قبل الحفظ والتعديل
             if (!canModify(found.agent)) {
                 alert("عذراً، لا تملك صلاحية تعديل هذا العقار!");
                 return;
             }
             existingOwnerPhone = found.ownerPhone || "";
-            originalAgent = found.agent || currentUser.name;
+            originalAgent = found.agent || originalAgent;
             existingVideoId = found.videoId || existingVideoId;
         }
     }
@@ -470,17 +489,27 @@ window.saveApartment = async function(e) {
     };
 
     await saveApartmentToCloud(aptId, aptData);
+    alert("تم حفظ العقار بنجاح بنظام الشركة!");
 
-    document.getElementById('apartmentForm').reset();
+    const form = document.getElementById('apartmentForm');
+    if(form) form.reset();
     if(phoneInput) phoneInput.disabled = false;
     const phoneNote = document.getElementById('phoneRestrictionNote');
     if(phoneNote) phoneNote.innerText = "";
 
     currentLocalVideoFile = null;
-    document.getElementById('videoPreviewContainer').classList.add('hidden');
-    document.getElementById('editIndex').value = "";
-    document.getElementById('formTitle').innerText = "إضافة عقار جديد لمكتب الكويتية للعقارات والمقاولات";
-    document.getElementById('cancelEditBtn').classList.add('hidden');
+    const previewCont = document.getElementById('videoPreviewContainer');
+    if(previewCont) previewCont.classList.add('hidden');
+    
+    const editIdxElem = document.getElementById('editIndex');
+    if(editIdxElem) editIdxElem.value = "";
+    
+    const formTitle = document.getElementById('formTitle');
+    if(formTitle) formTitle.innerText = "إضافة عقار جديد لمكتب الكويتية للعقارات والمقاولات";
+    
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    if(cancelBtn) cancelBtn.classList.add('hidden');
+    
     setupUserInterface();
     switchTab('apartments');
 }
@@ -494,7 +523,7 @@ window.editApartment = function(id) {
         return;
     }
 
-    const canSeePhone = isAdmin() || (apt.agent === currentUser.name);
+    const canSeePhone = isAdmin() || (currentUser && apt.agent === currentUser.name);
 
     const editIndexElem = document.getElementById('editIndex');
     if(editIndexElem) editIndexElem.value = apt.id;
@@ -520,7 +549,7 @@ window.editApartment = function(id) {
     const dealTypeElem = document.getElementById('dealType');
     if(dealTypeElem) {
         dealTypeElem.value = apt.dealType;
-        toggleSwapFields();
+        window.toggleSwapFields();
     }
 
     const propTypeElem = document.getElementById('propType');
@@ -532,7 +561,7 @@ window.editApartment = function(id) {
     const govElem = document.getElementById('governorateSelect');
     if(govElem) {
         govElem.value = apt.governorate;
-        updateCityOptions();
+        window.updateCityOptions();
     }
 
     const cityElem = document.getElementById('citySelect');
@@ -548,7 +577,7 @@ window.editApartment = function(id) {
     if(swapReqElem) swapReqElem.value = apt.swapRequired || '';
 
     const agentElem = document.getElementById('aptAgent');
-    if(agentElem) agentElem.value = apt.agent || currentUser.name;
+    if(agentElem) agentElem.value = apt.agent || (currentUser ? currentUser.name : '');
 
     const statusElem = document.getElementById('aptStatus');
     if(statusElem) statusElem.value = apt.status;
@@ -577,7 +606,7 @@ window.editApartment = function(id) {
     const cancelBtn = document.getElementById('cancelEditBtn');
     if(cancelBtn) cancelBtn.classList.remove('hidden');
 
-    switchTab('add');
+    window.switchTab('add');
 }
 
 window.cancelEdit = function() {
@@ -685,7 +714,7 @@ function renderMarqueeBar() {
     apartments.forEach((apt, realIndex) => {
         const card = document.createElement('div');
         card.className = "flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2.5 text-white shrink-0 shadow-md hover:border-amber-500 cursor-pointer transition transform hover:scale-105";
-        card.onclick = () => openApartmentDetails(realIndex);
+        card.onclick = () => window.openApartmentDetails(realIndex);
 
         let details = apt.dealType === 'للبدل' ? `بدل: ${apt.city}` : `${apt.propType} - ${Number(apt.price || 0).toLocaleString()} د.ك`;
 
@@ -713,10 +742,15 @@ function renderInventoryDashboard() {
     const swapCount = apartments.filter(a => a.dealType === 'للبدل').length;
     const sold = apartments.filter(a => a.status === 'مباعة').length;
 
-    document.getElementById('kpiTotal').innerText = total;
-    document.getElementById('kpiAvailable').innerText = available;
-    document.getElementById('kpiSwap').innerText = swapCount;
-    document.getElementById('kpiSold').innerText = sold;
+    const kpiTotal = document.getElementById('kpiTotal');
+    const kpiAvailable = document.getElementById('kpiAvailable');
+    const kpiSwap = document.getElementById('kpiSwap');
+    const kpiSold = document.getElementById('kpiSold');
+
+    if(kpiTotal) kpiTotal.innerText = total;
+    if(kpiAvailable) kpiAvailable.innerText = available;
+    if(kpiSwap) kpiSwap.innerText = swapCount;
+    if(kpiSold) kpiSold.innerText = sold;
 
     const agentsMap = {};
     apartments.forEach(a => {
@@ -728,119 +762,11 @@ function renderInventoryDashboard() {
     });
 
     const agentsBody = document.getElementById('agentsInventoryBody');
-    agentsBody.innerHTML = '';
-    for(let ag in agentsMap) {
-        const d = agentsMap[ag];
-        agentsBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${ag}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${d.total}</td><td class="py-2.5 px-3 text-center text-emerald-600">${d.available}</td><td class="py-2.5 px-3 text-center text-slate-600">${d.swapOrSold}</td></tr>`;
-    }
-
-    const areasMap = {};
-    apartments.forEach(a => {
-        const loc = `${a.governorate || ''} (${a.city || ''})`;
-        areasMap[loc] = (areasMap[loc] || 0) + 1;
-    });
-
-    const areasBody = document.getElementById('areasInventoryBody');
-    areasBody.innerHTML = '';
-    for(let loc in areasMap) {
-        const cnt = areasMap[loc];
-        const pct = total > 0 ? ((cnt/total)*100).toFixed(1) + '%' : '0%';
-        areasBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${loc}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${cnt}</td><td class="py-2.5 px-3 text-center">${pct}</td></tr>`;
+    if(agentsBody) {
+        agentsBody.innerHTML = '';
+        for(let ag in agentsMap) {
+            const d = agentsMap[ag];
+            agentsBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${ag}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${d.total}</td><td class="py-2.5 px-3 text-center text-emerald-600">${d.available}</td><td class="py-2.5 px-3 text-center text-slate-600">${d.swapOrSold}</td></tr>`;
+        }
     }
 }
-// دالة جلب وعرض المستخدمين في قائمة تسجيل الدخول تلقائياً
-async function loadUsersForLogin() {
-    try {
-        console.log("جاري جلب المستخدمين...");
-        const querySnapshot = await getDocs(collection(db, "users"));
-        
-        // ابحث عن الـ ID الخاص بقائمة اختيار المستخدم في صفحة الـ HTML (غالباً بيكون select أو id معين)
-        const userSelect = document.querySelector('select'); // أو اكتب الـ ID الخاص بالقائمة هنا
-        
-        if (!userSelect) {
-            console.warn("لم يتم العثور على قائمة المستخدمين في الصفحة");
-            return;
-        }
-
-        // الحفاظ على الخيار الافتراضي الأول وتفريغ الباقي
-        userSelect.innerHTML = '<option value="">اختر اسم المستخدم</option>';
-        
-        querySnapshot.forEach((doc) => {
-            const userData = doc.data();
-            const option = document.createElement('option');
-            option.value = userData.name || doc.id;
-            option.textContent = userData.name || "مستخدم";
-            userSelect.appendChild(option);
-        });
-        
-        console.log("تم تحميل أسماء المستخدمين بنجاح!");
-    } catch (error) {
-        console.error("خطأ في جلب المستخدمين: ", error);
-    }
-}
-
-// تشغيل الدالة فور تحميل الصفحة
-document.addEventListener("DOMContentLoaded", () => {
-    loadUsersForLogin();
-});
-
-window.handleAddProperty = async function (e) {
-    if (e && e.preventDefault) e.preventDefault();
-    
-    const saveBtn = document.querySelector('button[type="submit"]') || document.querySelector('button[onclick*="handleAddProperty"]');
-    if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.innerText = "جاري الحفظ...";
-    }
-
-    try {
-        const propertyData = {
-            governorate: document.getElementById('governorateInput')?.value || '',
-            area: document.getElementById('areaInput')?.value || '',
-            price: document.getElementById('priceInput')?.value || '',
-            notes: document.getElementById('aptNotes')?.value || '',
-            createdAt: new Date()
-        };
-
-        if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
-            throw new Error("متغيرات قاعدة بيانات Firebase غير معرفة أو غير متصلة.");
-        }
-
-        const docRef = await addDoc(collection(db, "properties"), propertyData);
-        console.log("تم الحفظ بنجاح، رقم المستند:", docRef.id);
-        
-        alert("تم حفظ العقار بنجاح بنظام الشركة!");
-        
-        const propertyForm = document.getElementById('propertyForm');
-        if (propertyForm) propertyForm.reset();
-
-    } catch (error) {
-        console.error("خطأ أثناء حفظ العقار: ", error);
-        alert("حدث خطأ أثناء الحفظ: " + error.message);
-    } finally {
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ العقار في نظام الشركة';
-        }
-    }
-};
-
-window.LoginRole = function (role) {
-    console.log("تم اختيار الدور:", role);
-};
-// ربط زر الحفظ برمجياً لضمان استجابته للضغط فوراً
-document.addEventListener("DOMContentLoaded", () => {
-    const saveButton = document.querySelector('button[type="submit"]') || document.querySelector('button');
-    if (saveButton) {
-        // البحث عن الزر الذي يحتوي على كلمة "حفظ العقار"
-        const allButtons = document.querySelectorAll('button');
-        allButtons.forEach(btn => {
-            if (btn.textContent.includes('حفظ العقار')) {
-                btn.type = "button"; // تحويله لزر عادي لمنع إعادة تحميل الصفحة
-                btn.addEventListener('click', (e) => {
-                    window.handleAddProperty(e);
-                });
-            }
-        });
-    }
-});
