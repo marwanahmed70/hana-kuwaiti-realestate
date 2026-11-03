@@ -1,8 +1,6 @@
 // استيراد مكتبات Firebase من الـ CDN المباشر
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-// إعدادات Firebase الخاصة بمشروعك[cite: 3]
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const firebaseConfig = {
     apiKey: "AIzaSyCDpZYVh3K6SKl3RfPBhsa6tZNIPWugRSM",
     authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
