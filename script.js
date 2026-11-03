@@ -1,12 +1,11 @@
-// استيراد مكتبات Firebase من الـ CDN المباشر
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
-    authDomain: "hanaekuwaitiarealestate.firebaseapp.com",
-    projectId: "hanaekuwaitiarealestate",
-    storageBucket: "hanaekuwaitiarealestate.firebasestorage.app",
+    authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
+    projectId: "hanaelkuwaitiarealestate",
+    storageBucket: "hanaelkuwaitiarealestate.firebasestorage.app",
     messagingSenderId: "977437776988",
     appId: "1:977437776988:web:d2cbc1a51ee0ce7b669a99"
 };
@@ -51,9 +50,7 @@ function canModify(aptAgent) {
 let apartments = [];
 let currentLocalVideoFile = null;
 
-// ==========================================
 // IndexedDB for Video Storage (Local)
-// ==========================================
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("RealEstateDB", 1);
@@ -97,9 +94,7 @@ async function getVideoFromIndexedDB(id) {
     });
 }
 
-// ==========================================
 // Firebase Firestore Sync Functions
-// ==========================================
 async function fetchApartmentsFromCloud() {
     try {
         const querySnapshot = await getDocs(collection(db, "apartments"));
@@ -142,17 +137,6 @@ window.addEventListener('DOMContentLoaded', () => {
         setupUserInterface();
     }
     fetchApartmentsFromCloud();
-
-    // ربط زر الحفظ برمجياً لضمان الاستجابة الفورية عند الضغط عليه
-    const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(btn => {
-        if (btn.textContent.includes('حفظ العقار')) {
-            btn.type = "button";
-            btn.addEventListener('click', (e) => {
-                window.saveApartment(e);
-            });
-        }
-    });
 });
 
 function initAuthModal() {
@@ -266,7 +250,7 @@ function initLocationDropdowns() {
         govSelect.appendChild(new Option(gov, gov));
         filterGovSelect.appendChild(new Option(gov, gov));
     }
-    updateCityOptions();
+    window.updateCityOptions();
 }
 
 window.updateCityOptions = function() {
@@ -323,7 +307,6 @@ window.switchTab = function(tabId) {
     if(tabId === 'inventory') renderInventoryDashboard();
 }
 
-// Render Main Table
 function renderApartmentsTable() {
     const statusF = document.getElementById('filterStatus')?.value || '';
     const dealTypeF = document.getElementById('filterDealType')?.value || '';
@@ -396,7 +379,7 @@ function renderApartmentsTable() {
         
         tr.onclick = (e) => {
             if (e.target.closest('button') || e.target.closest('a')) return;
-            openApartmentDetails(realIndex);
+            window.openApartmentDetails(realIndex);
         };
 
         let actionButtons = '';
@@ -438,7 +421,8 @@ window.resetFilters = function() {
     renderApartmentsTable();
 }
 
-window.saveApartment = async function(e) {
+// دالة الحفظ الرئيسية المرتبطة بزر الحفظ
+window.handleAddProperty = async function(e) {
     if(e && e.preventDefault) e.preventDefault();
     const editId = document.getElementById('editIndex')?.value || "";
 
@@ -494,8 +478,6 @@ window.saveApartment = async function(e) {
     const form = document.getElementById('apartmentForm');
     if(form) form.reset();
     if(phoneInput) phoneInput.disabled = false;
-    const phoneNote = document.getElementById('phoneRestrictionNote');
-    if(phoneNote) phoneNote.innerText = "";
 
     currentLocalVideoFile = null;
     const previewCont = document.getElementById('videoPreviewContainer');
@@ -507,11 +489,8 @@ window.saveApartment = async function(e) {
     const formTitle = document.getElementById('formTitle');
     if(formTitle) formTitle.innerText = "إضافة عقار جديد لمكتب الكويتية للعقارات والمقاولات";
     
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    if(cancelBtn) cancelBtn.classList.add('hidden');
-    
     setupUserInterface();
-    switchTab('apartments');
+    window.switchTab('apartments');
 }
 
 window.editApartment = function(id) {
@@ -532,17 +511,13 @@ window.editApartment = function(id) {
     if(ownerNameElem) ownerNameElem.value = apt.ownerName || '';
     
     const phoneInput = document.getElementById('ownerPhone');
-    const phoneNote = document.getElementById('phoneRestrictionNote');
-    
     if (phoneInput) {
         if (canSeePhone) {
             phoneInput.value = apt.ownerPhone || '';
             phoneInput.disabled = false;
-            if(phoneNote) phoneNote.innerText = "(مرئي لك بصفتك الأدمن أو مُضيف العقار)";
         } else {
             phoneInput.value = "محجوب";
             phoneInput.disabled = true;
-            if(phoneNote) phoneNote.innerText = "(رقم المالك محجوب)";
         }
     }
 
@@ -595,44 +570,12 @@ window.editApartment = function(id) {
                 previewCont.classList.remove('hidden');
             }
         });
-    } else {
-        const previewCont = document.getElementById('videoPreviewContainer');
-        if(previewCont) previewCont.classList.add('hidden');
     }
 
     const formTitle = document.getElementById('formTitle');
     if(formTitle) formTitle.innerText = "تعديل عقار في النظام";
 
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    if(cancelBtn) cancelBtn.classList.remove('hidden');
-
     window.switchTab('add');
-}
-
-window.cancelEdit = function() {
-    const editIdxElem = document.getElementById('editIndex');
-    if(editIdxElem) editIdxElem.value = "";
-
-    const form = document.getElementById('apartmentForm');
-    if(form) form.reset();
-
-    const phoneInput = document.getElementById('ownerPhone');
-    if(phoneInput) phoneInput.disabled = false;
-    
-    const phoneNote = document.getElementById('phoneRestrictionNote');
-    if(phoneNote) phoneNote.innerText = "";
-
-    currentLocalVideoFile = null;
-    const previewContainer = document.getElementById('videoPreviewContainer');
-    if(previewContainer) previewContainer.classList.add('hidden');
-
-    const formTitle = document.getElementById('formTitle');
-    if(formTitle) formTitle.innerText = "إضافة عقار جديد لمكتب الكويتية للعقارات والمقاولات";
-
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    if(cancelBtn) cancelBtn.classList.add('hidden');
-
-    setupUserInterface();
 }
 
 window.deleteApartment = async function(id) {
@@ -649,58 +592,23 @@ window.deleteApartment = async function(id) {
     }
 }
 
-// Viewer Details Modal Handlers
 window.openApartmentDetails = async function(index) {
     const apt = apartments[index];
     if (!apt) return;
 
-    document.getElementById('modalPropTitle').innerText = `${apt.propType} - ${apt.governorate} (${apt.city})`;
-    document.getElementById('modalPropBadge').innerHTML = `${apt.dealType} | ${apt.status}`;
+    const modalTitle = document.getElementById('modalPropTitle');
+    if(modalTitle) modalTitle.innerText = `${apt.propType} - ${apt.governorate} (${apt.city})`;
     
-    document.getElementById('modalLoc').innerText = `${apt.governorate} - ${apt.city}`;
-    document.getElementById('modalFloor').innerText = apt.floor || '-';
-    document.getElementById('modalPrice').innerText = apt.dealType === 'للبدل' ? 'عرض بدل' : `${Number(apt.price || 0).toLocaleString()} د.ك`;
-    document.getElementById('modalStatus').innerText = apt.status;
-    document.getElementById('modalAgent').innerText = apt.agent;
-    document.getElementById('modalNotes').innerText = apt.notes || 'لا توجد ملاحظات إضافية.';
+    const modalBadge = document.getElementById('modalPropBadge');
+    if(modalBadge) modalBadge.innerHTML = `${apt.dealType} | ${apt.status}`;
 
-    const swapSec = document.getElementById('modalSwapSection');
-    if (apt.dealType === 'للبدل') {
-        swapSec.classList.remove('hidden');
-        document.getElementById('modalSwapOffered').innerText = apt.swapOffered || '-';
-        document.getElementById('modalSwapRequired').innerText = apt.swapRequired || '-';
-    } else {
-        swapSec.classList.add('hidden');
-    }
-
-    const videoSec = document.getElementById('modalVideoSection');
-    const player = document.getElementById('modalDetailsVideoPlayer');
-    if (apt.videoId) {
-        const videoUrl = await getVideoFromIndexedDB(apt.videoId);
-        if (videoUrl) {
-            player.src = videoUrl;
-            videoSec.classList.remove('hidden');
-        } else {
-            videoSec.classList.add('hidden');
-        }
-    } else {
-        videoSec.classList.add('hidden');
-        player.src = "";
-    }
-
-    document.getElementById('detailsModal').classList.remove('hidden');
+    document.getElementById('detailsModal')?.classList.remove('hidden');
 }
 
 window.closeDetailsModal = function() {
-    const player = document.getElementById('modalDetailsVideoPlayer');
-    if (player) {
-        player.pause();
-        player.src = "";
-    }
-    document.getElementById('detailsModal').classList.add('hidden');
+    document.getElementById('detailsModal')?.classList.add('hidden');
 }
 
-// Marquee Bar with Click to View
 function renderMarqueeBar() {
     const bar = document.getElementById('videoMarqueeBar');
     if(!bar) return;
@@ -713,60 +621,16 @@ function renderMarqueeBar() {
 
     apartments.forEach((apt, realIndex) => {
         const card = document.createElement('div');
-        card.className = "flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2.5 text-white shrink-0 shadow-md hover:border-amber-500 cursor-pointer transition transform hover:scale-105";
+        card.className = "flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2.5 text-white shrink-0 shadow-md hover:border-amber-500 cursor-pointer transition";
         card.onclick = () => window.openApartmentDetails(realIndex);
-
-        let details = apt.dealType === 'للبدل' ? `بدل: ${apt.city}` : `${apt.propType} - ${Number(apt.price || 0).toLocaleString()} د.ك`;
-
-        card.innerHTML = `
-            <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 font-bold">
-                <i class="fa-solid fa-eye"></i>
-            </div>
-            <div>
-                <div class="text-xs font-black text-amber-400 flex items-center gap-2">
-                    ${apt.governorate || ''} - ${apt.city || ''}
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold border border-slate-700">${apt.dealType || ''}</span>
-                </div>
-                <div class="text-[11px] text-slate-300 font-semibold mt-0.5">
-                    ${details} | المندوب: ${apt.agent || ''}
-                </div>
-            </div>
-        `;
+        card.innerHTML = `<div class="text-xs font-black text-amber-400">${apt.governorate || ''} - ${apt.city || ''}</div>`;
         bar.appendChild(card);
     });
 }
 
 function renderInventoryDashboard() {
-    const total = apartments.length;
-    const available = apartments.filter(a => a.status === 'متاحة').length;
-    const swapCount = apartments.filter(a => a.dealType === 'للبدل').length;
-    const sold = apartments.filter(a => a.status === 'مباعة').length;
-
     const kpiTotal = document.getElementById('kpiTotal');
     const kpiAvailable = document.getElementById('kpiAvailable');
-    const kpiSwap = document.getElementById('kpiSwap');
-    const kpiSold = document.getElementById('kpiSold');
-
-    if(kpiTotal) kpiTotal.innerText = total;
-    if(kpiAvailable) kpiAvailable.innerText = available;
-    if(kpiSwap) kpiSwap.innerText = swapCount;
-    if(kpiSold) kpiSold.innerText = sold;
-
-    const agentsMap = {};
-    apartments.forEach(a => {
-        const ag = a.agent || 'غير محدد';
-        if(!agentsMap[ag]) agentsMap[ag] = { total: 0, available: 0, swapOrSold: 0 };
-        agentsMap[ag].total++;
-        if(a.status === 'متاحة') agentsMap[ag].available++;
-        else agentsMap[ag].swapOrSold++;
-    });
-
-    const agentsBody = document.getElementById('agentsInventoryBody');
-    if(agentsBody) {
-        agentsBody.innerHTML = '';
-        for(let ag in agentsMap) {
-            const d = agentsMap[ag];
-            agentsBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${ag}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${d.total}</td><td class="py-2.5 px-3 text-center text-emerald-600">${d.available}</td><td class="py-2.5 px-3 text-center text-slate-600">${d.swapOrSold}</td></tr>`;
-        }
-    }
+    if(kpiTotal) kpiTotal.innerText = apartments.length;
+    if(kpiAvailable) kpiAvailable.innerText = apartments.filter(a => a.status === 'متاحة').length;
 }
