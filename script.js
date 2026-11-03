@@ -752,8 +752,11 @@ function renderInventoryDashboard() {
 }
 // دوال النظام المحدثة للربط العام
 window.handleAddProperty = async function (e) {
-    e.preventDefault();
-    const saveBtn = document.querySelector('button[type="submit"]');
+    if (e && e.preventDefault) e.preventDefault();
+    
+    console.log("تم بدء عملية الحفظ..."); // تتبع في الـ Console
+
+    const saveBtn = document.querySelector('button[type="submit"]') || document.querySelector('button[onclick*="handleAddProperty"]');
     if (saveBtn) {
         saveBtn.disabled = true;
         saveBtn.innerText = "جاري الحفظ...";
@@ -764,14 +767,23 @@ window.handleAddProperty = async function (e) {
             governorate: document.getElementById('governorateInput')?.value || '',
             area: document.getElementById('areaInput')?.value || '',
             price: document.getElementById('priceInput')?.value || '',
-            notes: document.getElementById('notesInput')?.value || '',
+            notes: document.getElementById('aptNotes')?.value || '', // تم تعديلها لتطابق id="aptNotes" في الـ HTML
             createdAt: new Date()
         };
 
-        // تأكد أن db معرفة عندك في ملف الـ js للاستخدام
+        console.log("البيانات المراد حفظها:", propertyData);
+
+        // التأكد من توفر متغيرات فايربيس قبل الإرسال
+        if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
+            throw new Error("متغيرات قاعدة بيانات Firebase غير معرفة أو غير متصلة.");
+        }
+
         await addDoc(collection(db, "properties"), propertyData);
         alert("تم حفظ العقار بنجاح بنظام الشركة!");
-        document.getElementById('propertyForm')?.reset();
+        
+        // تفريغ النموذج إذا وجد
+        const form = document.getElementById('propertyForm');
+        if (form) form.reset();
 
     } catch (error) {
         console.error("خطأ أثناء حفظ العقار: ", error);
@@ -779,7 +791,7 @@ window.handleAddProperty = async function (e) {
     } finally {
         if (saveBtn) {
             saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fa-solid fa-lock"></i> حفظ العقار في نظام الشركة';
+            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ العقار في نظام الشركة';
         }
     }
 };
