@@ -748,6 +748,42 @@ function renderInventoryDashboard() {
         areasBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${loc}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${cnt}</td><td class="py-2.5 px-3 text-center">${pct}</td></tr>`;
     }
 }
+// دالة جلب وعرض المستخدمين في قائمة تسجيل الدخول تلقائياً
+async function loadUsersForLogin() {
+    try {
+        console.log("جاري جلب المستخدمين...");
+        const querySnapshot = await getDocs(collection(db, "users"));
+        
+        // ابحث عن الـ ID الخاص بقائمة اختيار المستخدم في صفحة الـ HTML (غالباً بيكون select أو id معين)
+        const userSelect = document.querySelector('select'); // أو اكتب الـ ID الخاص بالقائمة هنا
+        
+        if (!userSelect) {
+            console.warn("لم يتم العثور على قائمة المستخدمين في الصفحة");
+            return;
+        }
+
+        // الحفاظ على الخيار الافتراضي الأول وتفريغ الباقي
+        userSelect.innerHTML = '<option value="">اختر اسم المستخدم</option>';
+        
+        querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            const option = document.createElement('option');
+            option.value = userData.name || doc.id;
+            option.textContent = userData.name || "مستخدم";
+            userSelect.appendChild(option);
+        });
+        
+        console.log("تم تحميل أسماء المستخدمين بنجاح!");
+    } catch (error) {
+        console.error("خطأ في جلب المستخدمين: ", error);
+    }
+}
+
+// تشغيل الدالة فور تحميل الصفحة
+document.addEventListener("DOMContentLoaded", () => {
+    loadUsersForLogin();
+});
+
 window.handleAddProperty = async function (e) {
     if (e && e.preventDefault) e.preventDefault();
     
