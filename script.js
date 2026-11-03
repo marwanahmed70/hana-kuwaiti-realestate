@@ -828,3 +828,19 @@ window.handleAddProperty = async function (e) {
 window.LoginRole = function (role) {
     console.log("تم اختيار الدور:", role);
 };
+// ربط زر الحفظ برمجياً لضمان استجابته للضغط فوراً
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButton = document.querySelector('button[type="submit"]') || document.querySelector('button');
+    if (saveButton) {
+        // البحث عن الزر الذي يحتوي على كلمة "حفظ العقار"
+        const allButtons = document.querySelectorAll('button');
+        allButtons.forEach(btn => {
+            if (btn.textContent.includes('حفظ العقار')) {
+                btn.type = "button"; // تحويله لزر عادي لمنع إعادة تحميل الصفحة
+                btn.addEventListener('click', (e) => {
+                    window.handleAddProperty(e);
+                });
+            }
+        });
+    }
+});
