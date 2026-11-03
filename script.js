@@ -750,3 +750,40 @@ function renderInventoryDashboard() {
         areasBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${loc}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${cnt}</td><td class="py-2.5 px-3 text-center">${pct}</td></tr>`;
     }
 }
+// دوال النظام المحدثة للربط العام
+window.handleAddProperty = async function (e) {
+    e.preventDefault();
+    const saveBtn = document.querySelector('button[type="submit"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerText = "جاري الحفظ...";
+    }
+
+    try {
+        const propertyData = {
+            governorate: document.getElementById('governorateInput')?.value || '',
+            area: document.getElementById('areaInput')?.value || '',
+            price: document.getElementById('priceInput')?.value || '',
+            notes: document.getElementById('notesInput')?.value || '',
+            createdAt: new Date()
+        };
+
+        // تأكد أن db معرفة عندك في ملف الـ js للاستخدام
+        await addDoc(collection(db, "properties"), propertyData);
+        alert("تم حفظ العقار بنجاح بنظام الشركة!");
+        document.getElementById('propertyForm')?.reset();
+
+    } catch (error) {
+        console.error("خطأ أثناء حفظ العقار: ", error);
+        alert("حدث خطأ أثناء الحفظ: " + error.message);
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fa-solid fa-lock"></i> حفظ العقار في نظام الشركة';
+        }
+    }
+};
+
+window.LoginRole = function (role) {
+    console.log("تم اختيار الدور:", role);
+};
