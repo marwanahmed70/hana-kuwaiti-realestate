@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// الإعدادات المطابقة تماماً لـ Firebase الخاصة بك
 const firebaseConfig = {
     apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
     authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
@@ -13,12 +14,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ربط دوال فايربيس وقاعدة البيانات بالـ window لتكون متاحة للجميع
+// ربط دوال وقاعدة بيانات فايربيس بالنطاق العام
 window.db = db;
 window.collection = collection;
 window.addDoc = addDoc;
 
-// Kuwait Governorates and Cities / Areas Data Structure
+// هيكل بيانات المحافظات والمدن في الكويت
 const kuwaitLocations = {
     "مدينة المطلاع السكنية": ["المطلاع N1", "المطلاع N2", "المطلاع N3", "المطلاع N4", "المطلاع N5", "المطلاع N6", "المطلاع N7", "المطلاع N8", "المطلاع N9", "المطلاع N10", "المطلاع N11", "المطلاع N12"],
     "محافظة الجهراء": ["جابر الأحمد", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "نعيم", "كبد"],
@@ -29,7 +30,7 @@ const kuwaitLocations = {
     "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
 };
 
-// Users & Authentication Management
+// إدارة المستخدمين والصلاحيات
 let users = JSON.parse(localStorage.getItem('kuwaiti_users')) || [
     { name: "حياه", role: "admin", password: "1234" },
     { name: "ابو عمر", role: "agent", password: "112005" },
@@ -50,7 +51,7 @@ function canModify(aptAgent) {
 let apartments = [];
 let currentLocalVideoFile = null;
 
-// IndexedDB for Video Storage (Local)
+// IndexedDB لتخزين وفيديوهات المعاينة محلياً
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("RealEstateDB", 1);
@@ -94,7 +95,7 @@ async function getVideoFromIndexedDB(id) {
     });
 }
 
-// Firebase Firestore Sync Functions
+// مزامنة البيانات مع Firebase Firestore
 async function fetchApartmentsFromCloud() {
     try {
         const querySnapshot = await getDocs(collection(db, "apartments"));
@@ -127,7 +128,7 @@ async function deleteApartmentFromCloud(aptId) {
     }
 }
 
-// Authentication Handlers & Initialization
+// الأحداث والتهيئة عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
     initAuthModal();
     initLocationDropdowns();
@@ -187,7 +188,7 @@ function setupUserInterface() {
     renderApartmentsTable();
 }
 
-// Users Management Modal
+// إدارة المستخدمين (الأدمن)
 window.openUsersModal = function() {
     if (!isAdmin()) return;
     renderUsersList();
@@ -203,7 +204,7 @@ function renderUsersList() {
     if (!container) return;
     container.innerHTML = users.map((u, index) => `
         <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-bold">
-            <div>${u.name} <span class="text-[10px] px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">${u.role === 'admin' ? 'أدمن' : 'مندوب'}</span> (الباسورد: ${u.password})</div>
+            <div>${u.name} <span class="text-[10px] px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">${u.role === 'admin' ? 'أدمن' : 'مندوب'}</span></div>
             ${u.name !== 'الاء' ? `<button onclick="deleteUser(${index})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>` : ''}
         </div>
     `).join('');
@@ -237,7 +238,7 @@ window.deleteUser = function(index) {
     }
 }
 
-// Populate Governorates & Cities
+// قوائم المحافظات والمدن
 function initLocationDropdowns() {
     const govSelect = document.getElementById('governorateSelect');
     const filterGovSelect = document.getElementById('filterGovernorate');
@@ -307,6 +308,7 @@ window.switchTab = function(tabId) {
     if(tabId === 'inventory') renderInventoryDashboard();
 }
 
+// عرض وتحديث جدول العقارات
 function renderApartmentsTable() {
     const statusF = document.getElementById('filterStatus')?.value || '';
     const dealTypeF = document.getElementById('filterDealType')?.value || '';
@@ -421,7 +423,7 @@ window.resetFilters = function() {
     renderApartmentsTable();
 }
 
-// دالة الحفظ الرئيسية المرتبطة بزر الحفظ
+// دالة حفظ العقار الرئيسية والكاملة
 window.handleAddProperty = async function(e) {
     if(e && e.preventDefault) e.preventDefault();
     const editId = document.getElementById('editIndex')?.value || "";
