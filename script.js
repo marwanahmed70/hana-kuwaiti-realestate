@@ -775,11 +775,14 @@ window.handleAddProperty = async function (e) {
         if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
             throw new Error("متغيرات قاعدة بيانات Firebase غير معرفة أو غير متصلة.");
         }
-
-        await addDoc(collection(db, "properties"), propertyData);
+// حفظ البيانات في فايربيس
+        const docRef = await addDoc(collection(db, "properties"), propertyData);
+        console.log("تم الحفظ بنجاح، رقم المستند:", docRef.id);
+        
         alert("تم حفظ العقار بنجاح بنظام الشركة!");
         
-        // تفريغ النموذج إذا وجد
+        const form = document.getElementById('propertyForm');
+        if (form) form.reset();        // تفريغ النموذج إذا وجد
         const form = document.getElementById('propertyForm');
         if (form) form.reset();
 
