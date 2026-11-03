@@ -748,12 +748,9 @@ function renderInventoryDashboard() {
         areasBody.innerHTML += `<tr><td class="py-2.5 px-3 font-bold">${loc}</td><td class="py-2.5 px-3 text-center font-black text-amber-600">${cnt}</td><td class="py-2.5 px-3 text-center">${pct}</td></tr>`;
     }
 }
-// دوال النظام المحدثة للربط العام
 window.handleAddProperty = async function (e) {
     if (e && e.preventDefault) e.preventDefault();
     
-    console.log("تم بدء عملية الحفظ..."); // تتبع في الـ Console
-
     const saveBtn = document.querySelector('button[type="submit"]') || document.querySelector('button[onclick*="handleAddProperty"]');
     if (saveBtn) {
         saveBtn.disabled = true;
@@ -765,26 +762,21 @@ window.handleAddProperty = async function (e) {
             governorate: document.getElementById('governorateInput')?.value || '',
             area: document.getElementById('areaInput')?.value || '',
             price: document.getElementById('priceInput')?.value || '',
-            notes: document.getElementById('aptNotes')?.value || '', // تم تعديلها لتطابق id="aptNotes" في الـ HTML
+            notes: document.getElementById('aptNotes')?.value || '',
             createdAt: new Date()
         };
 
-        console.log("البيانات المراد حفظها:", propertyData);
-
-        // التأكد من توفر متغيرات فايربيس قبل الإرسال
         if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
             throw new Error("متغيرات قاعدة بيانات Firebase غير معرفة أو غير متصلة.");
         }
-// حفظ البيانات في فايربيس
+
         const docRef = await addDoc(collection(db, "properties"), propertyData);
         console.log("تم الحفظ بنجاح، رقم المستند:", docRef.id);
         
         alert("تم حفظ العقار بنجاح بنظام الشركة!");
         
-        const form = document.getElementById('propertyForm');
-        if (form) form.reset();        // تفريغ النموذج إذا وجد
-        const form = document.getElementById('propertyForm');
-        if (form) form.reset();
+        const propertyForm = document.getElementById('propertyForm');
+        if (propertyForm) propertyForm.reset();
 
     } catch (error) {
         console.error("خطأ أثناء حفظ العقار: ", error);
