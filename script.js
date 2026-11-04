@@ -443,6 +443,12 @@ window.handleAddProperty = async function(e) {
             originalAgent = found.agent || originalAgent;
             existingVideoId = found.videoId || existingVideoId;
         }
+    }                return;
+            }
+            existingOwnerPhone = found.ownerPhone || "";
+            originalAgent = found.agent || originalAgent;
+            existingVideoId = found.videoId || existingVideoId;
+        }
     }
 
     const phoneInput = document.getElementById('ownerPhone');
