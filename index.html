@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الكويتية للعقارات والمقاولات - مروان عمر</title>
+    <title>هنا الكويتية للعقارات والمقاولات - مروان عمر</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -16,46 +16,25 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- نافذة تسجيل الدخول -->
+    <!-- نافذة تسجيل الدخول السريعة -->
     <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-right">
             <h2 class="text-xl font-black text-slate-900 text-center"><i class="fa-solid fa-lock text-amber-500"></i> تسجيل دخول نظام الكويتية</h2>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اختر اسم المستخدم</label>
-                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold"></select>
+                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                        <option value="الاء">الاء (أدمن)</option>
+                        <option value="ابو عمر">ابو عمر (مندوب)</option>
+                        <option value="ابو صلاح">ابو صلاح (مندوب)</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="userPasswordInput" required placeholder="أدخل كلمة المرور الخاصة بك" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                    <input type="password" id="userPasswordInput" required placeholder="أدخل كلمة المرور" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
                 </div>
                 <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">دخول للنظام</button>
             </form>
-        </div>
-    </div>
-
-    <!-- نافذة إدارة المستخدمين (للأدمن فقط) -->
-    <div id="usersModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-amber-600"></i> إدارة حسابات المستخدمين والمناديب</h3>
-                <button onclick="closeUsersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="addNewUser(event)" class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <h4 class="text-xs font-black text-slate-700">إضافة مندوب أو مستخدم جديد</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <input type="text" id="newUserName" required placeholder="اسم المستخدم/المندوب" class="px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl">
-                    <select id="newUserRole" class="px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl font-bold">
-                        <option value="agent">مندوب (عادي)</option>
-                        <option value="admin">أدمن</option>
-                    </select>
-                </div>
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2 rounded-xl text-xs transition">إضافة الحساب للنظام</button>
-            </form>
-            <div>
-                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة حالياً</h4>
-                <div id="usersListContainer" class="space-y-2 max-h-40 overflow-y-auto"></div>
-            </div>
         </div>
     </div>
 
@@ -75,29 +54,12 @@
             </div>
             <div class="flex items-center space-x-2 space-x-reverse mt-2 sm:mt-0">
                 <div id="currentUserBadge" class="text-xs px-3 py-1 bg-slate-800 text-amber-400 rounded-xl font-bold border border-slate-700"></div>
-                <div id="adminPanelBtnContainer" class="hidden">
-                    <button onclick="openUsersModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-users-gear"></i> إدارة الحسابات
-                    </button>
-                </div>
                 <button onclick="logout()" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-rose-800 transition" title="خروج">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i> خروج
                 </button>
             </div>
         </div>
     </header>
-
-    <!-- شريط الفيديوهات المتحرك -->
-    <section class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 py-3 overflow-hidden border-b border-slate-800 shadow-inner">
-        <div class="max-w-7xl mx-auto px-4 mb-2 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
-                <i class="fa-solid fa-film text-amber-500"></i> المعاينة الحية وفيديوهات العقارات
-            </div>
-        </div>
-        <div class="overflow-hidden relative w-full">
-            <div id="videoMarqueeBar" class="flex gap-4 px-2 overflow-x-auto pb-2"></div>
-        </div>
-    </section>
 
     <!-- التبويبات الرئيسية -->
     <div class="max-w-7xl mx-auto px-4 mt-6 w-full">
@@ -108,78 +70,14 @@
             <button onclick="switchTab('add')" id="tab-add" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد
             </button>
-            <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-chart-pie"></i> الجرد وتقارير المناديب
-            </button>
         </nav>
     </div>
 
     <!-- المحتوى الرئيسي -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
 
-        <!-- التبويب الأول: السجل والفلاتر -->
+        <!-- التبويب الأول: السجل -->
         <section id="section-apartments" class="space-y-6">
-            <div class="glass-card rounded-2xl p-5 shadow-sm bg-white border border-slate-200">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">حالة العرض</label>
-                        <select id="filterStatus" onchange="renderApartmentsTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                            <option value="">جميع الحالات</option>
-                            <option value="متاحة">متاح</option>
-                            <option value="محجوزة">محجوز</option>
-                            <option value="مباعة">مباع / تم البدل</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">نوع العرض</label>
-                        <select id="filterDealType" onchange="renderApartmentsTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="">جميع العروض</option>
-                            <option value="للبيع">للبيع</option>
-                            <option value="للإيجار">للإيجار</option>
-                            <option value="للبدل">للبدل</option>
-                            <option value="طلب">طلب</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">نوع العقار</label>
-                        <select id="filterPropType" onchange="renderApartmentsTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="">جميع الأنواع</option>
-                            <option value="شقة">شقة</option>
-                            <option value="دور كامل">دور كامل</option>
-                            <option value="دوبلكس">دوبلكس</option>
-                            <option value="ستديو">ستديو</option>
-                            <option value="سرداب">سرداب</option>
-                            <option value="بيت">بيت</option>
-                            <option value="قسيمة">قسيمة</option>
-                            <option value="أرض">أرض</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">المحافظة / المنطقة</label>
-                        <select id="filterGovernorate" onchange="renderApartmentsTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="">جميع المناطق</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">اسم المندوب</label>
-                        <select id="filterAgent" onchange="renderApartmentsTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="">جميع المناديب</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">بحث شامل</label>
-                        <input type="text" id="filterSearch" oninput="renderApartmentsTable()" placeholder="ابحث بالتفاصيل..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                    </div>
-                </div>
-                <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-100">
-                    <span id="resultsCount" class="text-xs font-bold text-slate-600">عرض 0 عقار</span>
-                    <button onclick="resetFilters()" class="text-xs text-amber-600 hover:text-amber-800 font-bold transition flex items-center gap-1">
-                        <i class="fa-solid fa-rotate-right"></i> إعادة ضبط الفلاتر
-                    </button>
-                </div>
-            </div>
-
-            <!-- جدول العقارات -->
             <div class="glass-card rounded-2xl shadow-sm overflow-hidden border border-slate-200 bg-white">
                 <div class="overflow-x-auto">
                     <table class="w-full text-right border-collapse">
@@ -189,10 +87,8 @@
                                 <th class="py-3.5 px-4 font-bold">حالة العرض</th>
                                 <th class="py-3.5 px-4 font-bold">نوع العرض</th>
                                 <th class="py-3.5 px-4 font-bold">المحافظة والمنطقة</th>
-                                <th class="py-3.5 px-4 font-bold">الدور</th>
-                                <th class="py-3.5 px-4 font-bold">السعر / البدل</th>
+                                <th class="py-3.5 px-4 font-bold">السعر / القيمة</th>
                                 <th class="py-3.5 px-4 font-bold">المندوب / المالك</th>
-                                <th class="py-3.5 px-4 font-bold text-center">فيديو المعاينة</th>
                                 <th class="py-3.5 px-4 font-bold text-center">الإجراءات</th>
                             </tr>
                         </thead>
@@ -202,184 +98,165 @@
             </div>
         </section>
 
-        <!-- التبويب الثاني: إضافة أو تعديل عقار -->
+        <!-- التبويب الثاني: إضافة عقار -->
         <section id="section-add" class="hidden max-w-4xl mx-auto">
             <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white">
-                <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
-                    <div>
-                        <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد لمكتب الكويتية للعقارات والمقاولات</h2>
-                        <p class="text-xs text-slate-500">إشراف: مروان عمر — أدخل البيانات كاملة ليتم حفظها سحابياً</p>
-                    </div>
-                    <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg font-bold transition">إلغاء التعديل</button>
-                </div>
-
+                <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b">إضافة عقار جديد لنظام الشركة</h2>
                 <form id="apartmentForm" onsubmit="handleAddProperty(event)" class="space-y-4">
-                    <input type="hidden" id="editIndex" value="">
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1"><i class="fa-solid fa-user text-amber-600"></i> اسم مالك العقار <span class="text-red-500">*</span></label>
-                            <input type="text" id="ownerName" required placeholder="أدخل اسم مالك العقار" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">اسم مالك العقار *</label>
+                            <input type="text" id="ownerName" required placeholder="أدخل اسم المالك" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1"><i class="fa-solid fa-phone text-amber-600"></i> رقم تليفون المالك <span class="text-xs text-amber-700 font-bold">(يظهر للأدمن فقط)</span> <span class="text-red-500">*</span></label>
-                            <input type="text" id="ownerPhone" required placeholder="مثال: 99998888" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">رقم تليفون المالك *</label>
+                            <input type="text" id="ownerPhone" required placeholder="رقم الهاتف" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">نوع العرض <span class="text-red-500">*</span></label>
-                            <select id="dealType" onchange="toggleSwapFields()" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">نوع العرض</label>
+                            <select id="dealType" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
                                 <option value="للبيع">للبيع</option>
                                 <option value="للإيجار">للإيجار</option>
                                 <option value="للبدل">للبدل</option>
-                                <option value="طلب">طلب</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">نوع العقار <span class="text-red-500">*</span></label>
-                            <select id="propType" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">نوع العقار</label>
+                            <select id="propType" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
                                 <option value="شقة">شقة</option>
                                 <option value="دور كامل">دور كامل</option>
-                                <option value="ستديو">ستديو</option>
-                                <option value="دوبلكس">دوبلكس</option>
-                                <option value="سرداب">سرداب</option>
                                 <option value="بيت">بيت</option>
-                                <option value="قسيمة">قسيمة</option>
                                 <option value="أرض">أرض</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">الدور <span class="text-red-500">*</span></label>
-                            <select id="aptFloor" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                                <option value="الأرضي">الأرضي</option>
-                                <option value="الأول">الأول</option>
-                                <option value="الثاني">الثاني</option>
-                                <option value="الثالث">الثالث</option>
-                                <option value="الرابع">الرابع</option>
-                                <option value="السرداب">السرداب</option>
-                                <option value="السطح/الميزانين">السطح/الميزانين</option>
-                                <option value="البيت بالكامل">البيت بالكامل</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة / المنطقة الرئيسية <span class="text-red-500">*</span></label>
-                            <select id="governorateSelect" onchange="updateCityOptions()" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">المنطقة الفرعية / المطلاع <span class="text-red-500">*</span></label>
-                            <select id="citySelect" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"></select>
-                        </div>
-                    </div>
-
-                    <div id="priceContainer">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">السعر / القيمة الإيجارية (د.ك)</label>
-                        <input type="number" id="aptPrice" placeholder="أدخل المبلغ بالدينار الكويتي" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                    </div>
-
-                    <div id="swapContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50 p-4 rounded-xl border border-amber-200">
-                        <div>
-                            <label class="block text-xs font-bold text-amber-900 mb-1">تفاصيل العقار الموجود (الموفر للبدل)</label>
-                            <textarea id="swapOffered" rows="2" placeholder="مثال: طلب 2007..." class="w-full px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-amber-900 mb-1">تفاصيل المطلوب للبدل</label>
-                            <textarea id="swapRequired" rows="2" placeholder="مثال: يبي سد في المطلاع..." class="w-full px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">المندوب المسجل</label>
-                            <input type="text" id="aptAgent" required readonly class="w-full px-3 py-2 text-sm bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">حالة العرض</label>
-                            <select id="aptStatus" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                                <option value="متاحة">متاح / جاهز للعرض</option>
-                                <option value="محجوزة">تم الاتفاق / محجوز</option>
-                                <option value="مباعة">مباع / تم البدل</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-file-video text-amber-600"></i> اختيار فيديو المعاينة من الجهاز</label>
-                        <input type="file" id="localVideoInput" accept="video/*" onchange="handleLocalVideoSelect(event)" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <div id="videoPreviewContainer" class="hidden mt-3">
-                            <video id="videoPreview" controls class="max-h-40 rounded-xl border border-slate-300 w-full bg-black"></video>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">السعر (د.ك)</label>
+                            <input type="number" id="aptPrice" placeholder="السعر" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">تفاصيل وملاحظات العقار</label>
-                        <textarea id="aptNotes" rows="2" placeholder="أدخل الملاحظات الإضافية..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"></textarea>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة / المنطقة</label>
+                        <input type="text" id="aptLocation" required placeholder="مثال: مدينة المطلاع السكنية - N1" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
                     </div>
 
-                    <div class="pt-4 flex justify-end gap-3">
-                        <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
-                            <i class="fa-solid fa-floppy-disk"></i> حفظ العقار في نظام الشركة
-                        </button>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات إضافية</label>
+                        <textarea id="aptNotes" rows="2" placeholder="ملاحظات العقار..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"></textarea>
                     </div>
+
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ العقار في نظام الشركة
+                    </button>
                 </form>
-            </div>
-        </section>
-
-        <!-- التبويب الثالث: الجرد والتقارير -->
-        <section id="section-inventory" class="hidden space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-card p-5 rounded-2xl shadow-sm border-r-4 border-r-amber-500 flex items-center justify-between bg-white">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500">إجمالي العقارات بالشركة</p>
-                        <h3 id="kpiTotal" class="text-2xl font-black text-slate-900 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><i class="fa-solid fa-building text-xl"></i></div>
-                </div>
-                <div class="glass-card p-5 rounded-2xl shadow-sm border-r-4 border-r-emerald-500 flex items-center justify-between bg-white">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500">العروض المتاحة</p>
-                        <h3 id="kpiAvailable" class="text-2xl font-black text-emerald-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600"><i class="fa-solid fa-circle-check text-xl"></i></div>
-                </div>
-                <div class="glass-card p-5 rounded-2xl shadow-sm border-r-4 border-r-indigo-500 flex items-center justify-between bg-white">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500">عروض البدل</p>
-                        <h3 id="kpiSwap" class="text-2xl font-black text-indigo-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><i class="fa-solid fa-right-left text-xl"></i></div>
-                </div>
-                <div class="glass-card p-5 rounded-2xl shadow-sm border-r-4 border-r-rose-500 flex items-center justify-between bg-white">
-                    <div>
-                        <p class="text-xs font-bold text-slate-500">الصفقات المنجزة / المباعة</p>
-                        <h3 id="kpiSold" class="text-2xl font-black text-rose-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600"><i class="fa-solid fa-handshake text-xl"></i></div>
-                </div>
             </div>
         </section>
     </main>
 
-    <!-- مودال تفاصيل العقار -->
-    <div id="detailsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 text-right">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 id="modalPropTitle" class="text-base font-black text-slate-900">تفاصيل العقار</h3>
-                <button onclick="closeDetailsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="modalPropBadge" class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold"></div>
-            <p id="modalNotes" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200"></p>
-            <div id="modalVideoSection" class="hidden">
-                <video id="modalDetailsVideoPlayer" controls class="w-full max-h-48 rounded-xl bg-black"></video>
-            </div>
-        </div>
-    </div>
+    <!-- البرمجة الشاملة داخل الملف لضمان عدم وجود أخطاء مسارات -->
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('kuwaiti_user')) || null;
+        let apartments = JSON.parse(localStorage.getItem('kuwaiti_apartments')) || [];
 
-    <!-- استدعاء ملف الـ JavaScript بصيغة Module -->
-    <script type="module" src="script.js"></script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUser) {
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('currentUserBadge').innerText = currentUser;
+            }
+            renderTable();
+        });
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUserSelect').value;
+            const pass = document.getElementById('userPasswordInput').value;
+            
+            if (pass !== "") {
+                currentUser = username;
+                localStorage.setItem('kuwaiti_user', JSON.stringify(currentUser));
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('currentUserBadge').innerText = currentUser;
+                renderTable();
+            } else {
+                alert("يرجى إدخال كلمة المرور!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('kuwaiti_user');
+            location.reload();
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('section-apartments').classList.add('hidden');
+            document.getElementById('section-add').classList.add('hidden');
+            document.getElementById('tab-apartments').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
+            document.getElementById('tab-add').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
+
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md font-bold";
+            if(tabId === 'apartments') renderTable();
+        }
+
+        function handleAddProperty(e) {
+            e.preventDefault();
+            const newApt = {
+                id: "apt_" + Date.now(),
+                ownerName: document.getElementById('ownerName').value,
+                ownerPhone: document.getElementById('ownerPhone').value,
+                dealType: document.getElementById('dealType').value,
+                propType: document.getElementById('propType').value,
+                price: document.getElementById('aptPrice').value || 0,
+                location: document.getElementById('aptLocation').value,
+                notes: document.getElementById('aptNotes').value,
+                agent: currentUser || "مندوب",
+                status: "متاحة"
+            };
+
+            apartments.push(newApt);
+            localStorage.setItem('kuwaiti_apartments', JSON.stringify(apartments));
+            alert("تم حفظ العقار بنجاح في النظام!");
+            document.getElementById('apartmentForm').reset();
+            switchTab('apartments');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('apartmentsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            if(apartments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مسجلة حالياً</td></tr>`;
+                return;
+            }
+
+            apartments.forEach((apt, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType}</td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">${apt.status}</span></td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType}</span></td>
+                        <td class="py-3.5 px-4 font-bold text-slate-700">${apt.location}</td>
+                        <td class="py-3.5 px-4 font-black text-slate-900">${Number(apt.price).toLocaleString()} د.ك</td>
+                        <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent} <br><span class="text-xs text-emerald-700">${apt.ownerName} (${apt.ownerPhone})</span></td>
+                        <td class="py-3.5 px-4 text-center">
+                            <button onclick="deleteApartment(${index})" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition inline-flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteApartment(index) {
+            if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+                apartments.splice(index, 1);
+                localStorage.setItem('kuwaiti_apartments', JSON.stringify(apartments));
+                renderTable();
+            }
+        }
+    </script>
 </body>
 </html>
