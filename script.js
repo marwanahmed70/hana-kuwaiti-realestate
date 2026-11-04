@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// الإعدادات المطابقة تماماً لـ Firebase الخاصة بك
+// إعدادات Firebase الخاصة بمشروعك
 const firebaseConfig = {
     apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
     authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
@@ -14,12 +14,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ربط دوال وقاعدة بيانات فايربيس بالنطاق العام
+// ربط الدوال وقاعدة البيانات بالنطاق العام (Window) لتعمل مع HTML
 window.db = db;
 window.collection = collection;
 window.addDoc = addDoc;
 
-// هيكل بيانات المحافظات والمدن في الكويت
+// هيكل المحافظات والمدن في الكويت
 const kuwaitLocations = {
     "مدينة المطلاع السكنية": ["المطلاع N1", "المطلاع N2", "المطلاع N3", "المطلاع N4", "المطلاع N5", "المطلاع N6", "المطلاع N7", "المطلاع N8", "المطلاع N9", "المطلاع N10", "المطلاع N11", "المطلاع N12"],
     "محافظة الجهراء": ["جابر الأحمد", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "نعيم", "كبد"],
@@ -113,12 +113,12 @@ async function saveApartmentToCloud(aptId, aptData) {
     try {
         await setDoc(doc(db, "apartments", aptId), aptData);
         await fetchApartmentsFromCloud();
-        return true;
     } catch (e) {
         console.error("خطأ في الحفظ على السحاب:", e);
-        throw e;
+        alert("حدث خطأ أثناء الحفظ بالسحاب.");
     }
 }
+
 async function deleteApartmentFromCloud(aptId) {
     try {
         await deleteDoc(doc(db, "apartments", aptId));
@@ -188,7 +188,7 @@ function setupUserInterface() {
     renderApartmentsTable();
 }
 
-// إدارة المستخدمين (الأدمن)
+// إدارة الحسابات للأدمن
 window.openUsersModal = function() {
     if (!isAdmin()) return;
     renderUsersList();
@@ -238,7 +238,7 @@ window.deleteUser = function(index) {
     }
 }
 
-// قوائم المحافظات والمدن
+// تهيئة قوائم المحافظات
 function initLocationDropdowns() {
     const govSelect = document.getElementById('governorateSelect');
     const filterGovSelect = document.getElementById('filterGovernorate');
@@ -423,7 +423,7 @@ window.resetFilters = function() {
     renderApartmentsTable();
 }
 
-// دالة حفظ العقار الرئيسية والكاملة
+// دالة الحفظ الرئيسية (handleAddProperty)
 window.handleAddProperty = async function(e) {
     if(e && e.preventDefault) e.preventDefault();
     const editId = document.getElementById('editIndex')?.value || "";
@@ -474,14 +474,9 @@ window.handleAddProperty = async function(e) {
         notes: document.getElementById('aptNotes')?.value || ''
     };
 
-    try {
     await saveApartmentToCloud(aptId, aptData);
-    alert("تم حفظ العقار بنجاح!");
-} catch (error) {
-    console.error(error);
-    alert("فشل حفظ العقار: " + error.message);
-    return;
-}
+    alert("تم حفظ العقار بنجاح بنظام الشركة!");
+
     const form = document.getElementById('apartmentForm');
     if(form) form.reset();
     if(phoneInput) phoneInput.disabled = false;
