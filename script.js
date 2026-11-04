@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// إعدادات Firebase الخاصة بمشروعك
+// إعدادات Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
     authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
@@ -14,7 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ربط الدوال وقاعدة البيانات بالنطاق العام (Window) لتعمل مع HTML
 window.db = db;
 window.collection = collection;
 window.addDoc = addDoc;
@@ -30,7 +29,7 @@ const kuwaitLocations = {
     "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
 };
 
-// إدارة المستخدمين والصلاحيات
+// إدارة المستخدمين
 let users = JSON.parse(localStorage.getItem('kuwaiti_users')) || [
     { name: "حياه", role: "admin", password: "1234" },
     { name: "ابو عمر", role: "agent", password: "112005" },
@@ -51,7 +50,7 @@ function canModify(aptAgent) {
 let apartments = [];
 let currentLocalVideoFile = null;
 
-// IndexedDB لتخزين وفيديوهات المعاينة محلياً
+// IndexedDB للفيديوهات
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("RealEstateDB", 1);
@@ -95,7 +94,7 @@ async function getVideoFromIndexedDB(id) {
     });
 }
 
-// مزامنة البيانات مع Firebase Firestore
+// مزامنة Firebase
 async function fetchApartmentsFromCloud() {
     try {
         const querySnapshot = await getDocs(collection(db, "apartments"));
@@ -104,6 +103,7 @@ async function fetchApartmentsFromCloud() {
             apartments.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderApartmentsTable();
+        renderInventoryDashboard();
     } catch (e) {
         console.error("خطأ في جلب البيانات من السحاب:", e);
     }
@@ -128,7 +128,7 @@ async function deleteApartmentFromCloud(aptId) {
     }
 }
 
-// الأحداث والتهيئة عند تحميل الصفحةwindow.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     initAuthModal();
     initLocationDropdowns();
     if (currentUser) {
@@ -141,17 +141,9 @@ async function deleteApartmentFromCloud(aptId) {
 
 function initAuthModal() {
     const select = document.getElementById('loginUserSelect');
-    if (!select) {
-        console.warn("لم يتم العثور على عنصر loginUserSelect في الصفحة");
-        return;
-    }
-    
+    if (!select) return;
     select.innerHTML = users.map(u => `<option value="${u.name}">${u.name} ${u.role === 'admin' ? '(أدمن - الاء)' : '(مندوب)'}</option>`).join('');
-    console.log("تم تحميل أسماء المستخدمين في نافذة الدخول بنجاح.");
 }
-window.LoginRole = function(role) {
-    console.log("تم اختيار الدور:", role);
-};
 
 window.handleLogin = function(e) {
     e.preventDefault();
@@ -191,7 +183,6 @@ function setupUserInterface() {
     renderApartmentsTable();
 }
 
-// إدارة الحسابات للأدمن
 window.openUsersModal = function() {
     if (!isAdmin()) return;
     renderUsersList();
@@ -241,7 +232,6 @@ window.deleteUser = function(index) {
     }
 }
 
-// تهيئة قوائم المحافظات
 function initLocationDropdowns() {
     const govSelect = document.getElementById('governorateSelect');
     const filterGovSelect = document.getElementById('filterGovernorate');
@@ -311,7 +301,6 @@ window.switchTab = function(tabId) {
     if(tabId === 'inventory') renderInventoryDashboard();
 }
 
-// عرض وتحديث جدول العقارات
 function renderApartmentsTable() {
     const statusF = document.getElementById('filterStatus')?.value || '';
     const dealTypeF = document.getElementById('filterDealType')?.value || '';
@@ -426,7 +415,7 @@ window.resetFilters = function() {
     renderApartmentsTable();
 }
 
-// دالة الحفظ الرئيسية (handleAddProperty)
+// دالة حفظ العقار الرئيسية
 window.handleAddProperty = async function(e) {
     if(e && e.preventDefault) e.preventDefault();
     const editId = document.getElementById('editIndex')?.value || "";
@@ -441,12 +430,6 @@ window.handleAddProperty = async function(e) {
             if (!canModify(found.agent)) {
                 alert("عذراً، لا تملك صلاحية تعديل هذا العقار!");
                 return;
-            }
-            existingOwnerPhone = found.ownerPhone || "";
-            originalAgent = found.agent || originalAgent;
-            existingVideoId = found.videoId || existingVideoId;
-        }
-    }                return;
             }
             existingOwnerPhone = found.ownerPhone || "";
             originalAgent = found.agent || originalAgent;
@@ -612,11 +595,33 @@ window.openApartmentDetails = async function(index) {
     
     const modalBadge = document.getElementById('modalPropBadge');
     if(modalBadge) modalBadge.innerHTML = `${apt.dealType} | ${apt.status}`;
+    
+    const modalNotes = document.getElementById('modalNotes');
+    if(modalNotes) modalNotes.innerText = apt.notes || 'لا توجد ملاحظات إضافية.';
+
+    const videoSec = document.getElementById('modalVideoSection');
+    const player = document.getElementById('modalDetailsVideoPlayer');
+    if (apt.videoId) {
+        const videoUrl = await getVideoFromIndexedDB(apt.videoId);
+        if (videoUrl && player) {
+            player.src = videoUrl;
+            videoSec?.classList.remove('hidden');
+        } else {
+            videoSec?.classList.add('hidden');
+        }
+    } else {
+        videoSec?.classList.add('hidden');
+    }
 
     document.getElementById('detailsModal')?.classList.remove('hidden');
 }
 
 window.closeDetailsModal = function() {
+    const player = document.getElementById('modalDetailsVideoPlayer');
+    if (player) {
+        player.pause();
+        player.src = "";
+    }
     document.getElementById('detailsModal')?.classList.add('hidden');
 }
 
@@ -642,6 +647,11 @@ function renderMarqueeBar() {
 function renderInventoryDashboard() {
     const kpiTotal = document.getElementById('kpiTotal');
     const kpiAvailable = document.getElementById('kpiAvailable');
+    const kpiSwap = document.getElementById('kpiSwap');
+    const kpiSold = document.getElementById('kpiSold');
+
     if(kpiTotal) kpiTotal.innerText = apartments.length;
     if(kpiAvailable) kpiAvailable.innerText = apartments.filter(a => a.status === 'متاحة').length;
+    if(kpiSwap) kpiSwap.innerText = apartments.filter(a => a.dealType === 'للبدل').length;
+    if(kpiSold) kpiSold.innerText = apartments.filter(a => a.status === 'مباعة').length;
 }
