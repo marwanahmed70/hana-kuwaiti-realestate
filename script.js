@@ -113,12 +113,12 @@ async function saveApartmentToCloud(aptId, aptData) {
     try {
         await setDoc(doc(db, "apartments", aptId), aptData);
         await fetchApartmentsFromCloud();
+        return true;
     } catch (e) {
         console.error("خطأ في الحفظ على السحاب:", e);
-        alert("حدث خطأ أثناء الحفظ بالسحاب.");
+        throw e;
     }
 }
-
 async function deleteApartmentFromCloud(aptId) {
     try {
         await deleteDoc(doc(db, "apartments", aptId));
@@ -474,9 +474,14 @@ window.handleAddProperty = async function(e) {
         notes: document.getElementById('aptNotes')?.value || ''
     };
 
+    try {
     await saveApartmentToCloud(aptId, aptData);
-    alert("تم حفظ العقار بنجاح بنظام الشركة!");
-
+    alert("تم حفظ العقار بنجاح!");
+} catch (error) {
+    console.error(error);
+    alert("فشل حفظ العقار: " + error.message);
+    return;
+}
     const form = document.getElementById('apartmentForm');
     if(form) form.reset();
     if(phoneInput) phoneInput.disabled = false;
