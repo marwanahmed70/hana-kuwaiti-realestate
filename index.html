@@ -101,7 +101,7 @@
         <!-- التبويب الثاني: إضافة عقار -->
         <section id="section-add" class="hidden max-w-4xl mx-auto">
             <div class="glass-card rounded-2xl p-6 shadow-sm border border-slate-200 bg-white">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b">إضافة عقار جديد لنظام الشركة</h2>
+                <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b">إضافة عقار جديد لنظام الشركة السحابي</h2>
                 <form id="apartmentForm" onsubmit="handleAddProperty(event)" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -149,27 +149,57 @@
                     </div>
 
                     <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ العقار في نظام الشركة
+                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار في نظام الشركة (سحابياً)
                     </button>
                 </form>
             </div>
         </section>
     </main>
 
-    <!-- البرمجة الشاملة داخل الملف لضمان عدم وجود أخطاء مسارات -->
-    <script>
+    <!-- البرمجة السحابية المباشرة مع Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // إعدادات مشروع Firebase الخاص بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDpZYvH3K6SKl3RfPBhsa6tZNIPWugRSM",
+            authDomain: "hanaelkuwaitiarealestate.firebaseapp.com",
+            projectId: "hanaelkuwaitiarealestate",
+            storageBucket: "hanaelkuwaitiarealestate.firebasestorage.app",
+            messagingSenderId: "977437776988",
+            appId: "1:977437776988:web:d2cbc1a51ee0ce7b669a99"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         let currentUser = JSON.parse(localStorage.getItem('kuwaiti_user')) || null;
-        let apartments = JSON.parse(localStorage.getItem('kuwaiti_apartments')) || [];
+        let apartments = [];
+
+        // جلب العقارات سحابياً من Firebase
+        async function fetchApartments() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "apartments"));
+                apartments = [];
+                querySnapshot.forEach((docSnap) => {
+                    apartments.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderTable();
+            } catch (e) {
+                console.error("خطأ في جلب البيانات السحابية:", e);
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             if (currentUser) {
                 document.getElementById('authModal').classList.add('hidden');
                 document.getElementById('currentUserBadge').innerText = currentUser;
             }
-            renderTable();
+            fetchApartments();
         });
 
-        function handleLogin(e) {
+        window.handleLogin = function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUserSelect').value;
             const pass = document.getElementById('userPasswordInput').value;
@@ -183,14 +213,14 @@
             } else {
                 alert("يرجى إدخال كلمة المرور!");
             }
-        }
+        };
 
-        function logout() {
+        window.logout = function() {
             localStorage.removeItem('kuwaiti_user');
             location.reload();
-        }
+        };
 
-        function switchTab(tabId) {
+        window.switchTab = function(tabId) {
             document.getElementById('section-apartments').classList.add('hidden');
             document.getElementById('section-add').classList.add('hidden');
             document.getElementById('tab-apartments').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
@@ -198,30 +228,36 @@
 
             document.getElementById(`section-${tabId}`).classList.remove('hidden');
             document.getElementById(`tab-${tabId}`).className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md font-bold";
-            if(tabId === 'apartments') renderTable();
-        }
+            if(tabId === 'apartments') fetchApartments();
+        };
 
-        function handleAddProperty(e) {
+        window.handleAddProperty = async function(e) {
             e.preventDefault();
+            const aptId = "apt_" + Date.now();
             const newApt = {
-                id: "apt_" + Date.now(),
                 ownerName: document.getElementById('ownerName').value,
                 ownerPhone: document.getElementById('ownerPhone').value,
                 dealType: document.getElementById('dealType').value,
                 propType: document.getElementById('propType').value,
-                price: document.getElementById('aptPrice').value || 0,
+                price: Number(document.getElementById('aptPrice').value) || 0,
                 location: document.getElementById('aptLocation').value,
                 notes: document.getElementById('aptNotes').value,
                 agent: currentUser || "مندوب",
-                status: "متاحة"
+                status: "متاحة",
+                createdAt: new Date().toISOString()
             };
 
-            apartments.push(newApt);
-            localStorage.setItem('kuwaiti_apartments', JSON.stringify(apartments));
-            alert("تم حفظ العقار بنجاح في النظام!");
-            document.getElementById('apartmentForm').reset();
-            switchTab('apartments');
-        }
+            try {
+                await setDoc(doc(db, "apartments", aptId), newApt);
+                alert("تم حفظ العقار بنجاح في السحاب! سيظهر الآن على جميع الأجهزة بنفس اللحظة.");
+                document.getElementById('apartmentForm').reset();
+                await fetchApartments();
+                switchTab('apartments');
+            } catch (error) {
+                console.error("خطأ بالحفظ السحابي:", error);
+                alert("حدث خطأ أثناء الحفظ بالسحاب: " + error.message);
+            }
+        };
 
         function renderTable() {
             const tbody = document.getElementById('apartmentsTableBody');
@@ -229,34 +265,37 @@
             tbody.innerHTML = '';
 
             if(apartments.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مسجلة حالياً</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مسجلة حالياً بالشركة</td></tr>`;
                 return;
             }
 
-            apartments.forEach((apt, index) => {
+            apartments.forEach((apt) => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType}</td>
-                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">${apt.status}</span></td>
-                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType}</span></td>
-                        <td class="py-3.5 px-4 font-bold text-slate-700">${apt.location}</td>
-                        <td class="py-3.5 px-4 font-black text-slate-900">${Number(apt.price).toLocaleString()} د.ك</td>
-                        <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent} <br><span class="text-xs text-emerald-700">${apt.ownerName} (${apt.ownerPhone})</span></td>
+                        <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType || '-'}</td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">${apt.status || 'متاحة'}</span></td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType || '-'}</span></td>
+                        <td class="py-3.5 px-4 font-bold text-slate-700">${apt.location || '-'}</td>
+                        <td class="py-3.5 px-4 font-black text-slate-900">${Number(apt.price || 0).toLocaleString()} د.ك</td>
+                        <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent || '-'} <br><span class="text-xs text-emerald-700">${apt.ownerName || '-'} (${apt.ownerPhone || '-'})</span></td>
                         <td class="py-3.5 px-4 text-center">
-                            <button onclick="deleteApartment(${index})" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition inline-flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+                            <button onclick="deleteApartment('${apt.id}')" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition inline-flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function deleteApartment(index) {
-            if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
-                apartments.splice(index, 1);
-                localStorage.setItem('kuwaiti_apartments', JSON.stringify(apartments));
-                renderTable();
+        window.deleteApartment = async function(id) {
+            if(confirm("هل أنت متأكد من حذف هذا العقار من نظام الشركة والسحاب؟")) {
+                try {
+                    await deleteDoc(doc(db, "apartments", id));
+                    await fetchApartments();
+                } catch(e) {
+                    console.error("خطأ بالحذف:", e);
+                }
             }
-        }
+        };
     </script>
 </body>
 </html>
