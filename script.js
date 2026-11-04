@@ -128,8 +128,7 @@ async function deleteApartmentFromCloud(aptId) {
     }
 }
 
-// الأحداث والتهيئة عند تحميل الصفحة
-window.addEventListener('DOMContentLoaded', () => {
+// الأحداث والتهيئة عند تحميل الصفحةwindow.addEventListener('DOMContentLoaded', () => {
     initAuthModal();
     initLocationDropdowns();
     if (currentUser) {
@@ -142,10 +141,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function initAuthModal() {
     const select = document.getElementById('loginUserSelect');
-    if (!select) return;
+    if (!select) {
+        console.warn("لم يتم العثور على عنصر loginUserSelect في الصفحة");
+        return;
+    }
+    
     select.innerHTML = users.map(u => `<option value="${u.name}">${u.name} ${u.role === 'admin' ? '(أدمن - الاء)' : '(مندوب)'}</option>`).join('');
+    console.log("تم تحميل أسماء المستخدمين في نافذة الدخول بنجاح.");
 }
-
 window.LoginRole = function(role) {
     console.log("تم اختيار الدور:", role);
 };
