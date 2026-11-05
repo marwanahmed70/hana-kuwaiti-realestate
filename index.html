@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هنا الكويتية للعقارات والمقاولات </title>
+    <title>هنا الكويتية للعقارات والمقاولات - مروان عمر</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -19,26 +19,26 @@
     <!-- نافذة تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-right">
-            <h2 class="text-xl font-black text-slate-900 text-center"><i class="fa-solid fa-lock text-amber-500"></i> تسجيل دخول نظام هنا الكويتية</h2>
+            <h2 class="text-xl font-black text-slate-900 text-center"><i class="fa-solid fa-lock text-amber-500"></i> تسجيل دخول نظام الكويتية</h2>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اختر اسم المستخدم</label>
-                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold"></select>
+                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
-                    <input type="password" id="userPasswordInput" required placeholder="أدخل كلمة المرور" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                    <input type="password" id="userPasswordInput" required placeholder="أدخل كلمة المرور" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
                 </div>
                 <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">دخول للنظام</button>
             </form>
         </div>
     </div>
 
-    <!-- نافذة إدارة حسابات المستخدمين (للأدمن فقط) -->
+    <!-- نافذة إدارة حسابات المستخدمين (سحابي للأدمن فقط) -->
     <div id="usersModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-right">
             <div class="flex justify-between items-center pb-3 border-b">
-                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-indigo-600"></i> لوحة إدارة حسابات المناديب</h3>
+                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-indigo-600"></i> إدارة حسابات المناديب (سحابي)</h3>
                 <button onclick="closeUsersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -52,11 +52,11 @@
                         <option value="admin">أدمن</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-lg text-xs">إضافة الحساب للنظام</button>
+                <button type="submit" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-lg text-xs">إضافة الحساب للسحاب</button>
             </form>
 
             <div>
-                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة حالياً</h4>
+                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة سحابياً</h4>
                 <div id="usersListContainer" class="space-y-2 max-h-40 overflow-y-auto"></div>
             </div>
         </div>
@@ -73,7 +73,7 @@
             <div id="modalPhoneBox" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs font-bold text-emerald-800"></div>
             <p id="modalNotes" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border"></p>
             <div id="modalVideoSection" class="hidden space-y-2">
-                <p class="text-xs font-bold text-slate-700"><i class="fa-solid fa-video text-amber-600"></i> فيديو المعاينة المباشر:</p>
+                <p class="text-xs font-bold text-slate-700"><i class="fa-solid fa-video text-amber-600"></i> فيديو معاينة العقار:</p>
                 <div id="modalVideoContainer"></div>
             </div>
         </div>
@@ -161,7 +161,6 @@
                         <select id="filterPropType" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                             <option value="">جميع الأنواع</option>
                             <option value="شقة">شقة</option>
-                            <option value="استديو">استديو</option>
                             <option value="دور كامل">دور كامل</option>
                             <option value="دوبلكس">دوبلكس</option>
                             <option value="بيت">بيت</option>
@@ -206,7 +205,7 @@
             </div>
         </section>
 
-        <!-- التبويب الثاني: إضافة/تعديل عقار مع الرفع المباشر -->
+        <!-- التبويب الثاني: إضافة/تعديل عقار -->
         <section id="section-add" class="hidden max-w-4xl mx-auto">
             <div class="bg-white rounded-2xl p-6 shadow-sm border">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
@@ -241,7 +240,6 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">نوع العقار</label>
                             <select id="propType" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                                 <option value="شقة">شقة</option>
-                                <option value="استديو">استديو</option>
                                 <option value="دور كامل">دور كامل</option>
                                 <option value="دوبلكس">دوبلكس</option>
                                 <option value="بيت">بيت</option>
@@ -252,6 +250,7 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">حالة العرض</label>
                             <select id="aptStatus" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
                                 <option value="متاحة">متاحة (جاهز)</option>
+                                <option value="محجوزة">محجوزة</option>
                                 <option value="مباعة">مباعة / تم البدل</option>
                             </select>
                         </div>
@@ -284,12 +283,11 @@
                         </div>
                     </div>
 
-                    <!-- رفع الفيديو مباشرة من التليفون -->
                     <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200 space-y-2">
-                        <label class="block text-xs font-bold text-amber-900 mb-1"><i class="fa-solid fa-cloud-arrow-up text-amber-600"></i> اختيار ورصد فيديو من التليفون مباشرة (رفع سحابي موازٍ)</label>
+                        <label class="block text-xs font-bold text-amber-900 mb-1"><i class="fa-solid fa-cloud-arrow-up text-amber-600"></i> رفع فيديو معاينة أو إضافة رابط</label>
                         <input type="file" id="directVideoFileInput" accept="video/*" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <input type="url" id="videoUrlInput" placeholder="أو أضف رابط فيديو جاهز هنا" class="w-full px-3 py-2 text-xs bg-white border rounded-xl mt-2">
-                        <div id="uploadProgress" class="hidden text-xs font-bold text-indigo-700"><i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الفيديو للسحاب مباشرة... يرجى الانتظار</div>
+                        <input type="url" id="videoUrlInput" placeholder="أو أضف رابط فيديو يوتيوب / مباشر هنا" class="w-full px-3 py-2 text-xs bg-white border rounded-xl mt-2">
+                        <div id="uploadProgress" class="hidden text-xs font-bold text-indigo-700"><i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الفيديو للسحاب... يرجى الانتظار</div>
                     </div>
 
                     <div>
@@ -339,7 +337,7 @@
         </section>
     </main>
 
-    <!-- البرمجة السحابية المباشرة -->
+    <!-- البرمجة السحابية مع Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -366,14 +364,37 @@
             "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
         };
 
-        let users = JSON.parse(localStorage.getItem('kuwaiti_users')) || [
-            { name: "حياه", password: "12345678900", role: "admin" },
-            { name: "ابو عمر", password: "0120", role: "agent" },
-            { name: "ابو صلاح", password: "1231", role: "agent" }
-        ];
-
+        let users = [];
         let currentUser = JSON.parse(localStorage.getItem('kuwaiti_user')) || null;
         let apartments = [];
+
+        // جلب المستخدمين من سحاب Firebase Firestore
+        async function fetchUsers() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                users = [];
+                querySnapshot.forEach((docSnap) => {
+                    users.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // إذا كانت قاعدة البيانات فارغة تماماً، نقوم بإنشاء الحسابات الأساسية تلقائياً
+                if (users.length === 0) {
+                    const defaultUsers = [
+                        { id: "user_alaa", name: "الاء", password: "123", role: "admin" },
+                        { id: "user_abu_omar", name: "ابو عمر", password: "123", role: "agent" },
+                        { id: "user_abu_salah", name: "ابو صلاح", password: "123", role: "agent" }
+                    ];
+                    for(let u of defaultUsers) {
+                        await setDoc(doc(db, "users", u.id), u);
+                        users.push(u);
+                    }
+                }
+                initAuthModal();
+                if(isAdmin()) renderUsersList();
+            } catch (e) {
+                console.error("خطأ في جلب المستخدمين السحابيين:", e);
+            }
+        }
 
         function isAdmin() {
             const u = users.find(x => x.name === currentUser);
@@ -420,18 +441,18 @@
                 renderMarqueeBar();
                 renderInventoryDashboard();
             } catch (e) {
-                console.error("خطأ في جلب البيانات:", e);
+                console.error("خطأ في جلب العقارات:", e);
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initLocationDropdowns();
-            initAuthModal();
+            await fetchUsers();
             if (currentUser) {
                 document.getElementById('authModal').classList.add('hidden');
                 updateUserBadge();
             }
-            fetchApartments();
+            await fetchApartments();
         });
 
         function initAuthModal() {
@@ -485,40 +506,45 @@
         function renderUsersList() {
             const container = document.getElementById('usersListContainer');
             if(!container) return;
-            container.innerHTML = users.map((u, idx) => `
+            container.innerHTML = users.map((u) => `
                 <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border text-xs font-bold">
                     <div>${u.name} <span class="px-2 py-0.5 rounded ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">${u.role === 'admin' ? 'أدمن' : 'مندوب'}</span> (باسورد: ${u.password})</div>
-                    ${u.name !== 'الاء' ? `<button onclick="deleteUser(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    ${u.name !== 'الاء' ? `<button onclick="deleteUser('${u.id}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>` : ''}
                 </div>
             `).join('');
         }
 
-        window.addNewUser = function(e) {
+        window.addNewUser = async function(e) {
             e.preventDefault();
             const name = document.getElementById('newUserName').value.trim();
             const pass = document.getElementById('newUserPass').value.trim();
             const role = document.getElementById('newUserRole').value;
+            const userId = "user_" + Date.now();
 
             if(users.some(u => u.name === name)) {
                 alert("هذا المستخدم موجود بالفعل!");
                 return;
             }
 
-            users.push({ name, password: pass, role });
-            localStorage.setItem('kuwaiti_users', JSON.stringify(users));
-            initAuthModal();
-            renderUsersList();
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserPass').value = '';
-            alert("تم إضافة الحساب بنجاح!");
+            try {
+                await setDoc(doc(db, "users", userId), { name, password: pass, role });
+                await fetchUsers();
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserPass').value = '';
+                alert("تم إضافة الحساب بنجاح سحابياً للجميع!");
+            } catch (err) {
+                alert("خطأ أثناء إضافة الحساب: " + err.message);
+            }
         };
 
-        window.deleteUser = function(idx) {
-            if(confirm("هل أنت متأكد من حذف هذا الحساب؟")) {
-                users.splice(idx, 1);
-                localStorage.setItem('kuwaiti_users', JSON.stringify(users));
-                initAuthModal();
-                renderUsersList();
+        window.deleteUser = async function(userId) {
+            if(confirm("هل أنت متأكد من حذف هذا الحساب سحابياً؟")) {
+                try {
+                    await deleteDoc(doc(db, "users", userId));
+                    await fetchUsers();
+                } catch(err) {
+                    alert("خطأ أثناء الحذف: " + err.message);
+                }
             }
         };
 
@@ -552,11 +578,10 @@
             }
         };
 
-        // رفع الفيديو السحابي المباشر عبر Cloudinary Unsigned Upload
         async function uploadVideoToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('upload_preset', 'ml_default'); // الإعداد الافتراضي العام
+            formData.append('upload_preset', 'ml_default');
 
             const res = await fetch('https://api.cloudinary.com/v1_1/demo/video/upload', {
                 method: 'POST',
@@ -588,7 +613,7 @@
                     btn.disabled = true;
                     finalVideoUrl = await uploadVideoToCloudinary(videoFile);
                 } catch (err) {
-                    console.warn("تعذر الرفع السحابي، جاري حفظ الفيديو كعنصر محلي:", err);
+                    console.warn("تعذر الرفع السحابي المباشر، جاري الحفظ بالرابط المحلي:", err);
                     finalVideoUrl = URL.createObjectURL(videoFile);
                 } finally {
                     progress.classList.add('hidden');
@@ -626,7 +651,7 @@
 
             try {
                 await setDoc(doc(db, "apartments", aptId), newApt);
-                alert("تم حفظ العقار والفيديو بنجاح وتزامناً في السحاب للجميع!");
+                alert("تم حفظ العقار بنجاح في السحاب وتزامن مع الجميع!");
                 cancelEdit();
                 await fetchApartments();
                 switchTab('apartments');
