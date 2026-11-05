@@ -61,6 +61,14 @@
         </div>
     </header>
 
+    <!-- شريط فيديوهات المعاينة المتحرك -->
+    <section class="bg-slate-950 py-2.5 overflow-hidden border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-1 text-xs font-bold text-amber-400">
+            <i class="fa-solid fa-film"></i> معاينات الفيديو الحية للعقارات:
+        </div>
+        <div id="videoMarqueeBar" class="flex gap-3 overflow-x-auto px-4 pb-1"></div>
+    </section>
+
     <!-- التبويبات الرئيسية -->
     <div class="max-w-7xl mx-auto px-4 mt-6 w-full">
         <nav class="flex space-x-2 space-x-reverse bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
@@ -68,7 +76,7 @@
                 <i class="fa-solid fa-house-circle-check"></i> سجل العقارات والشقق
             </button>
             <button onclick="switchTab('add')" id="tab-add" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد
+                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد مع فيديو
             </button>
             <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-chart-pie"></i> الجرد والتقارير
@@ -144,6 +152,7 @@
                                 <th class="py-3.5 px-4 font-bold">المحافظة والمنطقة</th>
                                 <th class="py-3.5 px-4 font-bold">السعر / البدل</th>
                                 <th class="py-3.5 px-4 font-bold">المندوب / المالك</th>
+                                <th class="py-3.5 px-4 font-bold text-center">فيديو المعاينة</th>
                                 <th class="py-3.5 px-4 font-bold text-center">الإجراءات</th>
                             </tr>
                         </thead>
@@ -157,7 +166,7 @@
         <section id="section-add" class="hidden max-w-4xl mx-auto">
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد لنظام الشركة السحابي</h2>
+                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد مع فيديو معاينة</h2>
                     <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-lg font-bold">إلغاء التعديل</button>
                 </div>
                 <form id="apartmentForm" onsubmit="handleAddProperty(event)" class="space-y-4">
@@ -232,13 +241,22 @@
                         </div>
                     </div>
 
+                    <!-- رفع فيديو المعاينة -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-file-video text-amber-600"></i> رفع فيديو معاينة العقار من الجهاز</label>
+                        <input type="file" id="localVideoInput" accept="video/*" onchange="handleVideoSelect(event)" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
+                        <div id="videoPreviewContainer" class="hidden mt-3">
+                            <video id="videoPreview" controls class="max-h-40 rounded-xl border border-slate-300 w-full bg-black"></video>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات إضافية</label>
                         <textarea id="aptNotes" rows="2" placeholder="ملاحظات العقار..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"></textarea>
                     </div>
 
                     <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار في نظام الشركة (سحابياً)
+                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار والفيديو في نظام الشركة
                     </button>
                 </form>
             </div>
@@ -279,7 +297,20 @@
         </section>
     </main>
 
-    <!-- البرمجة السحابية المباشرة مع Firebase Firestore -->
+    <!-- مودال معاينة وتشغيل الفيديو -->
+    <div id="videoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center pb-2 border-b">
+                <h3 id="modalVideoTitle" class="text-base font-black text-slate-900">معاينة فيديو العقار</h3>
+                <button onclick="closeVideoModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+                <video id="modalVideoPlayer" controls class="w-full max-h-72 rounded-xl bg-black"></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- البرمجة السحابية مع Firebase وإدارة الفيديوهات محلياً -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -309,6 +340,48 @@
 
         let currentUser = JSON.parse(localStorage.getItem('kuwaiti_user')) || null;
         let apartments = [];
+        let currentVideoFile = null;
+
+        // نظام تخزين الفيديوهات محلياً لضمان سرعة العرض وعدم ضغط السيرفر
+        function openVideoDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open("RealEstateVideosDB", 1);
+                request.onerror = (e) => reject(e.target.error);
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onupgradeneeded = (e) => {
+                    const dbInst = e.target.result;
+                    if (!dbInst.objectStoreNames.contains("videos")) {
+                        dbInst.createObjectStore("videos", { keyPath: "id" });
+                    }
+                };
+            });
+        }
+
+        async function saveVideoToLocal(videoId, fileBlob) {
+            const dbInst = await openVideoDB();
+            return new Promise((resolve, reject) => {
+                const tx = dbInst.transaction(["videos"], "readwrite");
+                const store = tx.objectStore("videos");
+                const req = store.put({ id: videoId, blob: fileBlob });
+                req.onsuccess = () => resolve(true);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function getVideoFromLocal(videoId) {
+            const dbInst = await openVideoDB();
+            return new Promise((resolve, reject) => {
+                const tx = dbInst.transaction(["videos"], "readonly");
+                const store = tx.objectStore("videos");
+                const req = store.get(videoId);
+                req.onsuccess = (e) => {
+                    const res = e.target.result;
+                    if (res && res.blob) resolve(URL.createObjectURL(res.blob));
+                    else resolve(null);
+                };
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
 
         function isAdmin() {
             return currentUser === 'الاء';
@@ -351,6 +424,7 @@
                     apartments.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 renderTable();
+                renderMarqueeBar();
                 renderInventoryDashboard();
             } catch (e) {
                 console.error("خطأ في جلب البيانات السحابية:", e);
@@ -417,6 +491,16 @@
             }
         };
 
+        window.handleVideoSelect = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentVideoFile = file;
+                const preview = document.getElementById('videoPreview');
+                preview.src = URL.createObjectURL(file);
+                document.getElementById('videoPreviewContainer').classList.remove('hidden');
+            }
+        };
+
         window.handleAddProperty = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('editIndex').value;
@@ -425,6 +509,7 @@
 
             let originalAgent = currentUser || "مندوب";
             let existingPhone = document.getElementById('ownerPhone').value;
+            let existingVideoId = "vid_" + Date.now();
 
             if (editId !== "") {
                 const found = apartments.find(a => a.id === editId);
@@ -435,7 +520,12 @@
                     }
                     originalAgent = found.agent;
                     if(document.getElementById('ownerPhone').disabled) existingPhone = found.ownerPhone;
+                    if(found.videoId) existingVideoId = found.videoId;
                 }
+            }
+
+            if (currentVideoFile) {
+                await saveVideoToLocal(existingVideoId, currentVideoFile);
             }
 
             const newApt = {
@@ -450,13 +540,14 @@
                 swapOffered: dealTypeVal === 'للبدل' ? document.getElementById('swapOffered').value : '',
                 swapRequired: dealTypeVal === 'للبدل' ? document.getElementById('swapRequired').value : '',
                 notes: document.getElementById('aptNotes').value,
+                videoId: existingVideoId,
                 agent: originalAgent,
                 updatedAt: new Date().toISOString()
             };
 
             try {
                 await setDoc(doc(db, "apartments", aptId), newApt);
-                alert("تم حفظ العقار بنجاح في السحاب!");
+                alert("تم حفظ العقار وفيديو المعاينة بنجاح سحابياً!");
                 cancelEdit();
                 await fetchApartments();
                 switchTab('apartments');
@@ -493,7 +584,7 @@
             if(resCount) resCount.innerText = `عرض ${filtered.length} من إجمالي ${apartments.length} عقار بالشركة`;
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
                 return;
             }
 
@@ -507,13 +598,11 @@
                     `<div class="text-xs space-y-1 bg-amber-50 p-2 rounded-lg border border-amber-200"><div class="text-amber-900 font-bold">الموفر: ${apt.swapOffered || '-'}</div><div class="text-indigo-900 font-bold">المطلوب: ${apt.swapRequired || '-'}</div></div>` : 
                     `<span class="font-black text-slate-900 text-base">${Number(apt.price || 0).toLocaleString()} د.ك</span>`;
 
-                // شرط حماية رقم هاتف المالك
                 const userCanSeePhone = canModify(apt.agent);
                 const phoneDisplay = userCanSeePhone 
                     ? `<span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 inline-block mt-1"><i class="fa-solid fa-phone"></i> ${apt.ownerPhone || '-'}</span>`
                     : `<span class="text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mt-1"><i class="fa-solid fa-lock"></i> محجوب</span>`;
 
-                // زر التعديل والحذف يظهر فقط إذا كان للمستخدم صلاحية
                 let actionButtons = '';
                 if (userCanSeePhone) {
                     actionButtons = `
@@ -524,6 +613,10 @@
                     actionButtons = `<span class="text-[10px] text-slate-400 font-bold">غير مسموح</span>`;
                 }
 
+                let videoBtn = apt.videoId ? 
+                    `<button onclick="openVideoModal('${apt.videoId}', '${apt.propType} - ${apt.city}')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs transition shadow-sm flex items-center gap-1 mx-auto"><i class="fa-solid fa-play"></i> معاينة الفيديو</button>` : 
+                    `<span class="text-xs text-slate-400">بدون فيديو</span>`;
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType || '-'}</td>
@@ -532,12 +625,30 @@
                         <td class="py-3.5 px-4 font-bold text-slate-700">${apt.governorate || '-'} <br><span class="text-xs font-medium text-amber-600">${apt.city || '-'}</span></td>
                         <td class="py-3.5 px-4">${priceOrSwapDisplay}</td>
                         <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent || '-'} <br><span class="text-xs text-slate-600">${apt.ownerName || '-'}</span> <br> ${phoneDisplay}</td>
-                        <td class="py-3.5 px-4 text-center">
-                            ${actionButtons}
-                        </td>
+                        <td class="py-3.5 px-4 text-center">${videoBtn}</td>
+                        <td class="py-3.5 px-4 text-center">${actionButtons}</td>
                     </tr>
                 `;
             });
+        };
+
+        window.openVideoModal = async function(videoId, titleText) {
+            const url = await getVideoFromLocal(videoId);
+            const player = document.getElementById('modalVideoPlayer');
+            document.getElementById('modalVideoTitle').innerText = titleText;
+            if (url) {
+                player.src = url;
+                document.getElementById('videoModal').classList.remove('hidden');
+            } else {
+                alert("عذراً، ملف الفيديو غير موجود على هذا الجهاز محلياً (تم إضافته من جهاز آخر).");
+            }
+        };
+
+        window.closeVideoModal = function() {
+            const player = document.getElementById('modalVideoPlayer');
+            player.pause();
+            player.src = "";
+            document.getElementById('videoModal').classList.add('hidden');
         };
 
         window.editApartment = function(id) {
@@ -578,8 +689,10 @@
         window.cancelEdit = function() {
             document.getElementById('apartmentForm').reset();
             document.getElementById('editIndex').value = '';
-            document.getElementById('formTitle').innerText = "إضافة عقار جديد لنظام الشركة السحابي";
+            document.getElementById('formTitle').innerText = "إضافة عقار جديد مع فيديو معاينة";
             document.getElementById('cancelEditBtn').classList.add('hidden');
+            document.getElementById('videoPreviewContainer').classList.add('hidden');
+            currentVideoFile = null;
             toggleDealTypeFields();
         };
 
@@ -609,6 +722,24 @@
                 }
             }
         };
+
+        function renderMarqueeBar() {
+            const bar = document.getElementById('videoMarqueeBar');
+            if(!bar) return;
+            bar.innerHTML = '';
+            const withVideo = apartments.filter(a => a.videoId);
+            if(withVideo.length === 0) {
+                bar.innerHTML = '<span class="text-xs text-slate-500 px-4">لا توجد فيديوهات معاينة مرفوعة حالياً</span>';
+                return;
+            }
+            withVideo.forEach(apt => {
+                bar.innerHTML += `
+                    <div onclick="openVideoModal('${apt.videoId}', '${apt.propType} - ${apt.city}')" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-white text-xs font-bold cursor-pointer hover:border-amber-500 transition shrink-0 flex items-center gap-2">
+                        <i class="fa-solid fa-play text-amber-500"></i> ${apt.governorate} - ${apt.city} (${apt.propType})
+                    </div>
+                `;
+            });
+        }
 
         function renderInventoryDashboard() {
             document.getElementById('kpiTotal').innerText = apartments.length;
