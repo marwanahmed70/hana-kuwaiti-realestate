@@ -16,18 +16,14 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- نافذة تسجيل الدخول السريعة -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-right">
             <h2 class="text-xl font-black text-slate-900 text-center"><i class="fa-solid fa-lock text-amber-500"></i> تسجيل دخول نظام الكويتية</h2>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اختر اسم المستخدم</label>
-                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                        <option value="الاء">الاء (أدمن)</option>
-                        <option value="ابو عمر">ابو عمر (مندوب)</option>
-                        <option value="ابو صلاح">ابو صلاح (مندوب)</option>
-                    </select>
+                    <select id="loginUserSelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
@@ -35,6 +31,51 @@
                 </div>
                 <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">دخول للنظام</button>
             </form>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة حسابات المستخدمين (للأدمن فقط) -->
+    <div id="usersModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-indigo-600"></i> لوحة إدارة حسابات المناديب</h3>
+                <button onclick="closeUsersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form onsubmit="addNewUser(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
+                <h4 class="text-xs font-black text-slate-800">إضافة مندوب أو أدمن جديد</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" id="newUserName" required placeholder="اسم المستخدم" class="px-3 py-2 text-xs bg-white border rounded-lg">
+                    <input type="password" id="newUserPass" required placeholder="كلمة المرور" class="px-3 py-2 text-xs bg-white border rounded-lg">
+                    <select id="newUserRole" class="px-3 py-2 text-xs bg-white border rounded-lg font-bold">
+                        <option value="agent">مندوب</option>
+                        <option value="admin">أدمن</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-lg text-xs">إضافة الحساب للنظام</button>
+            </form>
+
+            <div>
+                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة حالياً</h4>
+                <div id="usersListContainer" class="space-y-2 max-h-40 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تفاصيل العقار -->
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 id="modalPropTitle" class="text-base font-black text-slate-900">تفاصيل العقار</h3>
+                <button onclick="closeDetailsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="modalPropBadge" class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold"></div>
+            <div id="modalPhoneBox" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs font-bold text-emerald-800"></div>
+            <p id="modalNotes" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border"></p>
+            <div id="modalVideoSection" class="hidden space-y-2">
+                <p class="text-xs font-bold text-slate-700"><i class="fa-solid fa-video text-amber-600"></i> فيديو معاينة العقار:</p>
+                <div id="modalVideoContainer"></div>
+            </div>
         </div>
     </div>
 
@@ -54,6 +95,11 @@
             </div>
             <div class="flex items-center space-x-2 space-x-reverse mt-2 sm:mt-0">
                 <div id="currentUserBadge" class="text-xs px-3 py-1 bg-slate-800 text-amber-400 rounded-xl font-bold border border-slate-700"></div>
+                <div id="adminPanelBtnContainer" class="hidden">
+                    <button onclick="openUsersModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+                        <i class="fa-solid fa-users-gear"></i> إدارة الحسابات
+                    </button>
+                </div>
                 <button onclick="logout()" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-rose-800 transition" title="خروج">
                     <i class="fa-solid fa-right-from-bracket"></i> خروج
                 </button>
@@ -61,10 +107,10 @@
         </div>
     </header>
 
-    <!-- شريط فيديوهات المعاينة المتحرك -->
+    <!-- شريط الفيديوهات المتحرك -->
     <section class="bg-slate-950 py-2.5 overflow-hidden border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-1 text-xs font-bold text-amber-400">
-            <i class="fa-solid fa-film"></i> معاينات الفيديو الحية للعقارات:
+            <i class="fa-solid fa-film"></i> معاينات الفيديو الحية:
         </div>
         <div id="videoMarqueeBar" class="flex gap-3 overflow-x-auto px-4 pb-1"></div>
     </section>
@@ -76,7 +122,7 @@
                 <i class="fa-solid fa-house-circle-check"></i> سجل العقارات والشقق
             </button>
             <button onclick="switchTab('add')" id="tab-add" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد مع فيديو
+                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد
             </button>
             <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-chart-pie"></i> الجرد والتقارير
@@ -93,7 +139,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">حالة العرض</label>
-                        <select id="filterStatus" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                        <select id="filterStatus" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
                             <option value="">جميع الحالات</option>
                             <option value="متاحة">متاح</option>
                             <option value="محجوزة">محجوز</option>
@@ -102,7 +148,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">نوع العرض</label>
-                        <select id="filterDealType" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                        <select id="filterDealType" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                             <option value="">جميع العروض</option>
                             <option value="للبيع">للبيع</option>
                             <option value="للإيجار">للإيجار</option>
@@ -112,7 +158,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">نوع العقار</label>
-                        <select id="filterPropType" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                        <select id="filterPropType" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                             <option value="">جميع الأنواع</option>
                             <option value="شقة">شقة</option>
                             <option value="دور كامل">دور كامل</option>
@@ -122,41 +168,38 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">المحافظة / المنطقة</label>
-                        <select id="filterGov" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">المحافظة</label>
+                        <select id="filterGov" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                             <option value="">جميع المناطق</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">بحث شامل</label>
-                        <input type="text" id="filterSearch" oninput="renderTable()" placeholder="ابحث المالك، المندوب، الملاحظات..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                        <input type="text" id="filterSearch" oninput="renderTable()" placeholder="ابحث بالمنطقة، المالك..." class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                     </div>
                 </div>
-                <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-100">
+                <div class="flex justify-between items-center mt-4 pt-3 border-t">
                     <span id="resultsCount" class="text-xs font-bold text-slate-600">عرض 0 عقار</span>
-                    <button onclick="resetFilters()" class="text-xs text-amber-600 hover:text-amber-800 font-bold transition flex items-center gap-1">
-                        <i class="fa-solid fa-rotate-right"></i> إعادة ضبط الفلاتر
-                    </button>
+                    <button onclick="resetFilters()" class="text-xs text-amber-600 font-bold flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> إعادة ضبط الفلاتر</button>
                 </div>
             </div>
 
             <!-- جدول العقارات -->
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border">
                 <div class="overflow-x-auto">
                     <table class="w-full text-right border-collapse">
                         <thead>
-                            <tr class="bg-slate-900 text-amber-400 text-xs uppercase tracking-wider">
+                            <tr class="bg-slate-900 text-amber-400 text-xs uppercase">
                                 <th class="py-3.5 px-4 font-bold">نوع العقار</th>
-                                <th class="py-3.5 px-4 font-bold">حالة العرض</th>
-                                <th class="py-3.5 px-4 font-bold">نوع العرض</th>
+                                <th class="py-3.5 px-4 font-bold">الحالة</th>
+                                <th class="py-3.5 px-4 font-bold">العرض</th>
                                 <th class="py-3.5 px-4 font-bold">المحافظة والمنطقة</th>
                                 <th class="py-3.5 px-4 font-bold">السعر / البدل</th>
                                 <th class="py-3.5 px-4 font-bold">المندوب / المالك</th>
-                                <th class="py-3.5 px-4 font-bold text-center">فيديو المعاينة</th>
                                 <th class="py-3.5 px-4 font-bold text-center">الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="apartmentsTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                        <tbody id="apartmentsTableBody" class="divide-y text-sm"></tbody>
                     </table>
                 </div>
             </div>
@@ -164,9 +207,9 @@
 
         <!-- التبويب الثاني: إضافة/تعديل عقار -->
         <section id="section-add" class="hidden max-w-4xl mx-auto">
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد مع فيديو معاينة</h2>
+                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد مع رابط فيديو</h2>
                     <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-lg font-bold">إلغاء التعديل</button>
                 </div>
                 <form id="apartmentForm" onsubmit="handleAddProperty(event)" class="space-y-4">
@@ -175,18 +218,18 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">اسم مالك العقار *</label>
-                            <input type="text" id="ownerName" required placeholder="أدخل اسم المالك" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                            <input type="text" id="ownerName" required placeholder="اسم المالك" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">رقم تليفون المالك * <span class="text-amber-700 font-normal">(يظهر للأدمن وصاحب العقار فقط)</span></label>
-                            <input type="text" id="ownerPhone" required placeholder="رقم الهاتف" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">رقم تليفون المالك * <span class="text-amber-700">(محجوب عن غير المالك والأدمن)</span></label>
+                            <input type="text" id="ownerPhone" required placeholder="رقم الهاتف" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">نوع العرض</label>
-                            <select id="dealType" onchange="toggleDealTypeFields()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                            <select id="dealType" onchange="toggleDealTypeFields()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
                                 <option value="للبيع">للبيع</option>
                                 <option value="للإيجار">للإيجار</option>
                                 <option value="للبدل">للبدل</option>
@@ -195,7 +238,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">نوع العقار</label>
-                            <select id="propType" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                            <select id="propType" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                                 <option value="شقة">شقة</option>
                                 <option value="دور كامل">دور كامل</option>
                                 <option value="دوبلكس">دوبلكس</option>
@@ -205,7 +248,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">حالة العرض</label>
-                            <select id="aptStatus" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold">
+                            <select id="aptStatus" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
                                 <option value="متاحة">متاحة (جاهز)</option>
                                 <option value="محجوزة">محجوزة</option>
                                 <option value="مباعة">مباعة / تم البدل</option>
@@ -213,50 +256,45 @@
                         </div>
                     </div>
 
-                    <!-- نظام اختيارات المحافظة والمنطقة -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة / المنطقة الرئيسية *</label>
-                            <select id="governorateSelect" onchange="updateCityOptions()" required class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl font-bold"></select>
+                            <select id="governorateSelect" onchange="updateCityOptions()" required class="w-full px-3 py-2 text-sm bg-white border rounded-xl font-bold"></select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">المنطقة الفرعية / القطاع *</label>
-                            <select id="citySelect" required class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl font-bold"></select>
+                            <select id="citySelect" required class="w-full px-3 py-2 text-sm bg-white border rounded-xl font-bold"></select>
                         </div>
                     </div>
 
                     <div id="priceContainer">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">السعر / القيمة الإيجارية (د.ك)</label>
-                        <input type="number" id="aptPrice" placeholder="أدخل المبلغ بالدينار الكويتي" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">السعر (د.ك)</label>
+                        <input type="number" id="aptPrice" placeholder="السعر بالدينار الكويتي" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                     </div>
 
                     <div id="swapContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 bg-amber-50 p-4 rounded-xl border border-amber-200">
                         <div>
-                            <label class="block text-xs font-bold text-amber-900 mb-1">تفاصيل العقار المعروض للبدل</label>
-                            <textarea id="swapOffered" rows="2" placeholder="مثال: طلب 2007..." class="w-full px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl"></textarea>
+                            <label class="block text-xs font-bold text-amber-900 mb-1">المعروض للبدل</label>
+                            <textarea id="swapOffered" rows="2" placeholder="التفاصيل..." class="w-full px-3 py-2 text-sm bg-white border rounded-xl"></textarea>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-amber-900 mb-1">تفاصيل المطلوب للبدل</label>
-                            <textarea id="swapRequired" rows="2" placeholder="مثال: يبي سد في المطلاع..." class="w-full px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- رفع فيديو المعاينة -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-file-video text-amber-600"></i> رفع فيديو معاينة العقار من الجهاز</label>
-                        <input type="file" id="localVideoInput" accept="video/*" onchange="handleVideoSelect(event)" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <div id="videoPreviewContainer" class="hidden mt-3">
-                            <video id="videoPreview" controls class="max-h-40 rounded-xl border border-slate-300 w-full bg-black"></video>
+                            <label class="block text-xs font-bold text-amber-900 mb-1">المطلوب للبدل</label>
+                            <textarea id="swapRequired" rows="2" placeholder="التفاصيل..." class="w-full px-3 py-2 text-sm bg-white border rounded-xl"></textarea>
                         </div>
                     </div>
 
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1"><i class="fa-solid fa-link text-amber-600"></i> رابط فيديو المعاينة (يوتيوب أو رابط مباشر متزامن)</label>
+                        <input type="url" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=..." class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات إضافية</label>
-                        <textarea id="aptNotes" rows="2" placeholder="ملاحظات العقار..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl"></textarea>
+                        <textarea id="aptNotes" rows="2" placeholder="ملاحظات..." class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl"></textarea>
                     </div>
 
                     <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار والفيديو في نظام الشركة
+                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار في السحاب للجميع
                     </button>
                 </form>
             </div>
@@ -267,7 +305,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-r-amber-500 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-bold text-slate-500">إجمالي العقارات بالشركة</p>
+                        <p class="text-xs font-bold text-slate-500">إجمالي العقارات</p>
                         <h3 id="kpiTotal" class="text-2xl font-black text-slate-900 mt-1">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><i class="fa-solid fa-building text-xl"></i></div>
@@ -288,7 +326,7 @@
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-r-rose-500 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-bold text-slate-500">الصفقات المنجزة / المباعة</p>
+                        <p class="text-xs font-bold text-slate-500">الصفقات المباعة</p>
                         <h3 id="kpiSold" class="text-2xl font-black text-rose-600 mt-1">0</h3>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600"><i class="fa-solid fa-handshake text-xl"></i></div>
@@ -297,20 +335,7 @@
         </section>
     </main>
 
-    <!-- مودال معاينة وتشغيل الفيديو -->
-    <div id="videoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-right">
-            <div class="flex justify-between items-center pb-2 border-b">
-                <h3 id="modalVideoTitle" class="text-base font-black text-slate-900">معاينة فيديو العقار</h3>
-                <button onclick="closeVideoModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div>
-                <video id="modalVideoPlayer" controls class="w-full max-h-72 rounded-xl bg-black"></video>
-            </div>
-        </div>
-    </div>
-
-    <!-- البرمجة السحابية مع Firebase وإدارة الفيديوهات محلياً -->
+    <!-- البرمجة السحابية مع Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -327,7 +352,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // قائمة المحافظات والمدن للكويت
         const kuwaitLocations = {
             "مدينة المطلاع السكنية": ["المطلاع N1", "المطلاع N2", "المطلاع N3", "المطلاع N4", "المطلاع N5", "المطلاع N6", "المطلاع N7", "المطلاع N8", "المطلاع N9", "المطلاع N10", "المطلاع N11", "المطلاع N12"],
             "محافظة الجهراء": ["جابر الأحمد", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "كبد"],
@@ -338,53 +362,19 @@
             "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
         };
 
+        // نظام الحسابات والمستخدمين (يُحفظ في LocalStorage ليتيح للأدمن التحكم)
+        let users = JSON.parse(localStorage.getItem('kuwaiti_users')) || [
+            { name: "الاء", password: "123", role: "admin" },
+            { name: "ابو عمر", password: "123", role: "agent" },
+            { name: "ابو صلاح", password: "123", role: "agent" }
+        ];
+
         let currentUser = JSON.parse(localStorage.getItem('kuwaiti_user')) || null;
         let apartments = [];
-        let currentVideoFile = null;
-
-        // نظام تخزين الفيديوهات محلياً لضمان سرعة العرض وعدم ضغط السيرفر
-        function openVideoDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open("RealEstateVideosDB", 1);
-                request.onerror = (e) => reject(e.target.error);
-                request.onsuccess = (e) => resolve(e.target.result);
-                request.onupgradeneeded = (e) => {
-                    const dbInst = e.target.result;
-                    if (!dbInst.objectStoreNames.contains("videos")) {
-                        dbInst.createObjectStore("videos", { keyPath: "id" });
-                    }
-                };
-            });
-        }
-
-        async function saveVideoToLocal(videoId, fileBlob) {
-            const dbInst = await openVideoDB();
-            return new Promise((resolve, reject) => {
-                const tx = dbInst.transaction(["videos"], "readwrite");
-                const store = tx.objectStore("videos");
-                const req = store.put({ id: videoId, blob: fileBlob });
-                req.onsuccess = () => resolve(true);
-                req.onerror = (e) => reject(e.target.error);
-            });
-        }
-
-        async function getVideoFromLocal(videoId) {
-            const dbInst = await openVideoDB();
-            return new Promise((resolve, reject) => {
-                const tx = dbInst.transaction(["videos"], "readonly");
-                const store = tx.objectStore("videos");
-                const req = store.get(videoId);
-                req.onsuccess = (e) => {
-                    const res = e.target.result;
-                    if (res && res.blob) resolve(URL.createObjectURL(res.blob));
-                    else resolve(null);
-                };
-                req.onerror = (e) => reject(e.target.error);
-            });
-        }
 
         function isAdmin() {
-            return currentUser === 'الاء';
+            const u = users.find(x => x.name === currentUser);
+            return u && u.role === 'admin';
         }
 
         function canModify(agentName) {
@@ -427,38 +417,107 @@
                 renderMarqueeBar();
                 renderInventoryDashboard();
             } catch (e) {
-                console.error("خطأ في جلب البيانات السحابية:", e);
+                console.error("خطأ في جلب البيانات:", e);
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             initLocationDropdowns();
+            initAuthModal();
             if (currentUser) {
                 document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('currentUserBadge').innerText = currentUser + (isAdmin() ? ' (أدمن)' : ' (مندوب)');
+                updateUserBadge();
             }
             fetchApartments();
         });
 
+        function initAuthModal() {
+            const sel = document.getElementById('loginUserSelect');
+            if(!sel) return;
+            sel.innerHTML = users.map(u => `<option value="${u.name}">${u.name} (${u.role === 'admin' ? 'أدمن' : 'مندوب'})</option>`).join('');
+        }
+
+        function updateUserBadge() {
+            const badge = document.getElementById('currentUserBadge');
+            const adminBtn = document.getElementById('adminPanelBtnContainer');
+            if(badge) badge.innerText = currentUser + (isAdmin() ? ' (أدمن)' : ' (مندوب)');
+            if(adminBtn) {
+                if(isAdmin()) adminBtn.classList.remove('hidden');
+                else adminBtn.classList.add('hidden');
+            }
+        }
+
         window.handleLogin = function(e) {
             e.preventDefault();
-            const username = document.getElementById('loginUserSelect').value;
+            const name = document.getElementById('loginUserSelect').value;
             const pass = document.getElementById('userPasswordInput').value;
-            
-            if (pass !== "") {
-                currentUser = username;
+            const foundUser = users.find(u => u.name === name);
+
+            if (foundUser && foundUser.password === pass) {
+                currentUser = name;
                 localStorage.setItem('kuwaiti_user', JSON.stringify(currentUser));
                 document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('currentUserBadge').innerText = currentUser + (isAdmin() ? ' (أدمن)' : ' (مندوب)');
+                updateUserBadge();
                 fetchApartments();
             } else {
-                alert("يرجى إدخال كلمة المرور!");
+                alert("كلمة المرور غير صحيحة!");
             }
         };
 
         window.logout = function() {
             localStorage.removeItem('kuwaiti_user');
             location.reload();
+        };
+
+        // إدارة الحسابات للأدمن
+        window.openUsersModal = function() {
+            if(!isAdmin()) return;
+            renderUsersList();
+            document.getElementById('usersModal').classList.remove('hidden');
+        };
+
+        window.closeUsersModal = function() {
+            document.getElementById('usersModal').classList.add('hidden');
+        };
+
+        function renderUsersList() {
+            const container = document.getElementById('usersListContainer');
+            if(!container) return;
+            container.innerHTML = users.map((u, idx) => `
+                <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border text-xs font-bold">
+                    <div>${u.name} <span class="px-2 py-0.5 rounded ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">${u.role === 'admin' ? 'أدمن' : 'مندوب'}</span> (باسورد: ${u.password})</div>
+                    ${u.name !== 'الاء' ? `<button onclick="deleteUser(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        window.addNewUser = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newUserName').value.trim();
+            const pass = document.getElementById('newUserPass').value.trim();
+            const role = document.getElementById('newUserRole').value;
+
+            if(users.some(u => u.name === name)) {
+                alert("هذا المستخدم موجود بالفعل!");
+                return;
+            }
+
+            users.push({ name, password: pass, role });
+            localStorage.setItem('kuwaiti_users', JSON.stringify(users));
+            initAuthModal();
+            renderUsersList();
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserPass').value = '';
+            alert("تم إضافة الحساب بنجاح!");
+        };
+
+        window.deleteUser = function(idx) {
+            if(confirm("هل أنت متأكد من حذف هذا الحساب؟")) {
+                users.splice(idx, 1);
+                localStorage.setItem('kuwaiti_users', JSON.stringify(users));
+                initAuthModal();
+                renderUsersList();
+            }
         };
 
         window.switchTab = function(tabId) {
@@ -491,16 +550,6 @@
             }
         };
 
-        window.handleVideoSelect = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                currentVideoFile = file;
-                const preview = document.getElementById('videoPreview');
-                preview.src = URL.createObjectURL(file);
-                document.getElementById('videoPreviewContainer').classList.remove('hidden');
-            }
-        };
-
         window.handleAddProperty = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('editIndex').value;
@@ -509,7 +558,6 @@
 
             let originalAgent = currentUser || "مندوب";
             let existingPhone = document.getElementById('ownerPhone').value;
-            let existingVideoId = "vid_" + Date.now();
 
             if (editId !== "") {
                 const found = apartments.find(a => a.id === editId);
@@ -519,13 +567,7 @@
                         return;
                     }
                     originalAgent = found.agent;
-                    if(document.getElementById('ownerPhone').disabled) existingPhone = found.ownerPhone;
-                    if(found.videoId) existingVideoId = found.videoId;
                 }
-            }
-
-            if (currentVideoFile) {
-                await saveVideoToLocal(existingVideoId, currentVideoFile);
             }
 
             const newApt = {
@@ -539,15 +581,15 @@
                 price: dealTypeVal === 'للبدل' ? 0 : (Number(document.getElementById('aptPrice').value) || 0),
                 swapOffered: dealTypeVal === 'للبدل' ? document.getElementById('swapOffered').value : '',
                 swapRequired: dealTypeVal === 'للبدل' ? document.getElementById('swapRequired').value : '',
+                videoUrl: document.getElementById('videoUrlInput').value || '',
                 notes: document.getElementById('aptNotes').value,
-                videoId: existingVideoId,
                 agent: originalAgent,
                 updatedAt: new Date().toISOString()
             };
 
             try {
                 await setDoc(doc(db, "apartments", aptId), newApt);
-                alert("تم حفظ العقار وفيديو المعاينة بنجاح سحابياً!");
+                alert("تم حفظ العقار بنجاح في السحاب وتزامن مع الجميع!");
                 cancelEdit();
                 await fetchApartments();
                 switchTab('apartments');
@@ -584,7 +626,7 @@
             if(resCount) resCount.innerText = `عرض ${filtered.length} من إجمالي ${apartments.length} عقار بالشركة`;
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
                 return;
             }
 
@@ -595,13 +637,13 @@
                 else statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800">مباع / تم البدل</span>';
 
                 let priceOrSwapDisplay = apt.dealType === 'للبدل' ? 
-                    `<div class="text-xs space-y-1 bg-amber-50 p-2 rounded-lg border border-amber-200"><div class="text-amber-900 font-bold">الموفر: ${apt.swapOffered || '-'}</div><div class="text-indigo-900 font-bold">المطلوب: ${apt.swapRequired || '-'}</div></div>` : 
+                    `<div class="text-xs space-y-1 bg-amber-50 p-2 rounded-lg border border-amber-200"><div class="text-amber-900 font-bold">الموفر: ${apt.swapOffered || '-'}</div></div>` : 
                     `<span class="font-black text-slate-900 text-base">${Number(apt.price || 0).toLocaleString()} د.ك</span>`;
 
                 const userCanSeePhone = canModify(apt.agent);
                 const phoneDisplay = userCanSeePhone 
-                    ? `<span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 inline-block mt-1"><i class="fa-solid fa-phone"></i> ${apt.ownerPhone || '-'}</span>`
-                    : `<span class="text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mt-1"><i class="fa-solid fa-lock"></i> محجوب</span>`;
+                    ? `<span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border"><i class="fa-solid fa-phone"></i> ${apt.ownerPhone || '-'}</span>`
+                    : `<span class="text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded border"><i class="fa-solid fa-lock"></i> محجوب</span>`;
 
                 let actionButtons = '';
                 if (userCanSeePhone) {
@@ -613,42 +655,61 @@
                     actionButtons = `<span class="text-[10px] text-slate-400 font-bold">غير مسموح</span>`;
                 }
 
-                let videoBtn = apt.videoId ? 
-                    `<button onclick="openVideoModal('${apt.videoId}', '${apt.propType} - ${apt.city}')" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs transition shadow-sm flex items-center gap-1 mx-auto"><i class="fa-solid fa-play"></i> معاينة الفيديو</button>` : 
-                    `<span class="text-xs text-slate-400">بدون فيديو</span>`;
+                const realIndex = apartments.findIndex(a => a.id === apt.id);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 cursor-pointer transition";
+                tr.onclick = (e) => {
+                    if(e.target.closest('button')) return;
+                    openDetailsModal(realIndex);
+                };
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType || '-'}</td>
-                        <td class="py-3.5 px-4">${statusBadge}</td>
-                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType || '-'}</span></td>
-                        <td class="py-3.5 px-4 font-bold text-slate-700">${apt.governorate || '-'} <br><span class="text-xs font-medium text-amber-600">${apt.city || '-'}</span></td>
-                        <td class="py-3.5 px-4">${priceOrSwapDisplay}</td>
-                        <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent || '-'} <br><span class="text-xs text-slate-600">${apt.ownerName || '-'}</span> <br> ${phoneDisplay}</td>
-                        <td class="py-3.5 px-4 text-center">${videoBtn}</td>
-                        <td class="py-3.5 px-4 text-center">${actionButtons}</td>
-                    </tr>
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType || '-'}</td>
+                    <td class="py-3.5 px-4">${statusBadge}</td>
+                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType || '-'}</span></td>
+                    <td class="py-3.5 px-4 font-bold text-slate-700">${apt.governorate || '-'} <br><span class="text-xs font-medium text-amber-600">${apt.city || '-'}</span></td>
+                    <td class="py-3.5 px-4">${priceOrSwapDisplay}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-800">${apt.agent || '-'} <br><span class="text-xs text-slate-600">${apt.ownerName || '-'}</span> <br> ${phoneDisplay}</td>
+                    <td class="py-3.5 px-4 text-center" onclick="event.stopPropagation()">${actionButtons}</td>
                 `;
+                tbody.appendChild(tr);
             });
         };
 
-        window.openVideoModal = async function(videoId, titleText) {
-            const url = await getVideoFromLocal(videoId);
-            const player = document.getElementById('modalVideoPlayer');
-            document.getElementById('modalVideoTitle').innerText = titleText;
-            if (url) {
-                player.src = url;
-                document.getElementById('videoModal').classList.remove('hidden');
+        // تفاصيل العقار عند الضغط عليه
+        window.openDetailsModal = function(index) {
+            const apt = apartments[index];
+            if(!apt) return;
+
+            document.getElementById('modalPropTitle').innerText = `${apt.propType} - ${apt.governorate} (${apt.city})`;
+            document.getElementById('modalPropBadge').innerHTML = `${apt.dealType} | ${apt.status} | الإشراف: ${apt.agent}`;
+            
+            const userCanSeePhone = canModify(apt.agent);
+            const phoneBox = document.getElementById('modalPhoneBox');
+            if(userCanSeePhone) {
+                phoneBox.innerHTML = `<i class="fa-solid fa-phone"></i> المالك: ${apt.ownerName} — الهاتف: <strong>${apt.ownerPhone}</strong>`;
+                phoneBox.className = "bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs font-bold text-emerald-800";
             } else {
-                alert("عذراً، ملف الفيديو غير موجود على هذا الجهاز محلياً (تم إضافته من جهاز آخر).");
+                phoneBox.innerHTML = `<i class="fa-solid fa-lock"></i> رقم هاتف المالك محجوب (لصاحب العقار والأدمن فقط)`;
+                phoneBox.className = "bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-bold text-amber-800";
             }
+
+            document.getElementById('modalNotes').innerText = apt.notes ? `ملاحظات: ${apt.notes}` : 'لا توجد ملاحظات إضافية.';
+
+            const vidSec = document.getElementById('modalVideoSection');
+            const vidCont = document.getElementById('modalVideoContainer');
+            if(apt.videoUrl) {
+                vidCont.innerHTML = `<a href="${apt.videoUrl}" target="_blank" class="block w-full py-3 bg-slate-900 text-amber-400 font-bold text-center rounded-xl hover:bg-slate-800 transition"><i class="fa-solid fa-play"></i> اضغط هنا لمشاهدة فيديو المعاينة</a>`;
+                vidSec.classList.remove('hidden');
+            } else {
+                vidSec.classList.add('hidden');
+            }
+
+            document.getElementById('detailsModal').classList.remove('hidden');
         };
 
-        window.closeVideoModal = function() {
-            const player = document.getElementById('modalVideoPlayer');
-            player.pause();
-            player.src = "";
-            document.getElementById('videoModal').classList.add('hidden');
+        window.closeDetailsModal = function() {
+            document.getElementById('detailsModal').classList.add('hidden');
         };
 
         window.editApartment = function(id) {
@@ -676,6 +737,7 @@
             document.getElementById('aptPrice').value = apt.price || '';
             document.getElementById('swapOffered').value = apt.swapOffered || '';
             document.getElementById('swapRequired').value = apt.swapRequired || '';
+            document.getElementById('videoUrlInput').value = apt.videoUrl || '';
             document.getElementById('aptNotes').value = apt.notes || '';
 
             toggleDealTypeFields();
@@ -689,10 +751,8 @@
         window.cancelEdit = function() {
             document.getElementById('apartmentForm').reset();
             document.getElementById('editIndex').value = '';
-            document.getElementById('formTitle').innerText = "إضافة عقار جديد مع فيديو معاينة";
+            document.getElementById('formTitle').innerText = "إضافة عقار جديد مع رابط فيديو";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-            document.getElementById('videoPreviewContainer').classList.add('hidden');
-            currentVideoFile = null;
             toggleDealTypeFields();
         };
 
@@ -713,7 +773,7 @@
                 return;
             }
 
-            if(confirm("هل أنت متأكد من حذف هذا العقار من نظام الشركة والسحاب؟")) {
+            if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
                 try {
                     await deleteDoc(doc(db, "apartments", id));
                     await fetchApartments();
@@ -727,14 +787,15 @@
             const bar = document.getElementById('videoMarqueeBar');
             if(!bar) return;
             bar.innerHTML = '';
-            const withVideo = apartments.filter(a => a.videoId);
+            const withVideo = apartments.filter(a => a.videoUrl);
             if(withVideo.length === 0) {
-                bar.innerHTML = '<span class="text-xs text-slate-500 px-4">لا توجد فيديوهات معاينة مرفوعة حالياً</span>';
+                bar.innerHTML = '<span class="text-xs text-slate-500 px-4">لا توجد روابط فيديو مرفوعة حالياً</span>';
                 return;
             }
-            withVideo.forEach(apt => {
+            withVideo.forEach((apt, realIdx) => {
+                const idx = apartments.findIndex(a => a.id === apt.id);
                 bar.innerHTML += `
-                    <div onclick="openVideoModal('${apt.videoId}', '${apt.propType} - ${apt.city}')" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-white text-xs font-bold cursor-pointer hover:border-amber-500 transition shrink-0 flex items-center gap-2">
+                    <div onclick="openDetailsModal(${idx})" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-white text-xs font-bold cursor-pointer hover:border-amber-500 transition shrink-0 flex items-center gap-2">
                         <i class="fa-solid fa-play text-amber-500"></i> ${apt.governorate} - ${apt.city} (${apt.propType})
                     </div>
                 `;
