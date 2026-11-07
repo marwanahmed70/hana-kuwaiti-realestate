@@ -12,6 +12,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 25s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -34,23 +46,22 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات وتغيير باسورد الموظف (خاص بالأدمن فقط) -->
+    <!-- نافذة تعديل حساب الموظف (للأدمن فقط) -->
     <div id="editUserModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-right">
             <div class="flex justify-between items-center pb-3 border-b">
-                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-user-pen text-indigo-600"></i> تعديل اسم المستخدم وكلمة السر</h3>
+                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-user-pen text-indigo-600"></i> تعديل الاسم وكلمة السر</h3>
                 <button onclick="closeEditUserModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <form onsubmit="handleUpdateUserSubmit(event)" class="space-y-3">
                 <input type="hidden" id="editUserId">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم الجديد</label>
-                    <input type="text" id="editUserNameInput" required placeholder="اسم المستخدم" class="w-full px-3 py-2 text-xs bg-slate-50 border rounded-xl font-bold">
+                    <input type="text" id="editUserNameInput" required class="w-full px-3 py-2 text-xs bg-slate-50 border rounded-xl font-bold">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور الجديدة</label>
-                    <input type="text" id="editUserPassInput" required placeholder="كلمة المرور" class="w-full px-3 py-2 text-xs bg-slate-50 border rounded-xl font-bold">
+                    <input type="text" id="editUserPassInput" required class="w-full px-3 py-2 text-xs bg-slate-50 border rounded-xl font-bold">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">الصلاحية</label>
@@ -59,19 +70,18 @@
                         <option value="admin">أدمن</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl transition text-xs shadow-md">حفظ التغييرات سحابياً</button>
+                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl transition text-xs shadow-md">حفظ التغييرات</button>
             </form>
         </div>
     </div>
 
-    <!-- نافذة إدارة حسابات المستخدمين (سحابي للأدمن فقط) -->
+    <!-- نافذة إدارة المناديب والحسابات -->
     <div id="usersModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-right">
             <div class="flex justify-between items-center pb-3 border-b">
-                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-indigo-600"></i> إدارة وتعديل حسابات المناديب (سحابي)</h3>
+                <h3 class="text-base font-black text-slate-900"><i class="fa-solid fa-users-gear text-indigo-600"></i> إدارة حسابات المناديب</h3>
                 <button onclick="closeUsersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <form onsubmit="addNewUser(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
                 <h4 class="text-xs font-black text-slate-800">إضافة مندوب أو أدمن جديد</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -82,12 +92,11 @@
                         <option value="admin">أدمن</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-lg text-xs">إضافة الحساب للسحاب</button>
+                <button type="submit" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-lg text-xs">إضافة الحساب</button>
             </form>
-
             <div>
-                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة سحابياً</h4>
-                <div id="usersListContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                <h4 class="text-xs font-black text-slate-700 mb-2">الحسابات المسجلة</h4>
+                <div id="usersListContainer" class="space-y-2 max-h-44 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -125,11 +134,9 @@
             </div>
             <div class="flex items-center space-x-2 space-x-reverse mt-2 sm:mt-0">
                 <div id="currentUserBadge" class="text-xs px-3 py-1 bg-slate-800 text-amber-400 rounded-xl font-bold border border-slate-700"></div>
-
-                <!-- زر لوحة التحكم الإدارية للأدمن فقط -->
                 <div id="adminPanelBtnContainer" class="hidden">
                     <button onclick="openUsersModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
-                        <i class="fa-solid fa-users-gear"></i> إدارة المناديب والأسماء
+                        <i class="fa-solid fa-users-gear"></i> إدارة المناديب
                     </button>
                 </div>
                 <button onclick="logout()" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-rose-800 transition" title="خروج">
@@ -139,25 +146,33 @@
         </div>
     </header>
 
-    <!-- شريط الفيديوهات المتحرك -->
-    <section class="bg-slate-950 py-2.5 overflow-hidden border-b border-slate-800">
+    <!-- شريط العروض المميزة المتحرك (Marquee) -->
+    <section class="bg-slate-950 py-2.5 overflow-hidden border-b border-slate-800 relative">
         <div class="max-w-7xl mx-auto px-4 flex items-center gap-2 mb-1 text-xs font-bold text-amber-400">
-            <i class="fa-solid fa-film"></i> معاينات الفيديو الحية للمنازل:
+            <i class="fa-solid fa-star text-amber-400"></i> العروض المميزة الحية:
         </div>
-        <div id="videoMarqueeBar" class="flex gap-3 overflow-x-auto px-4 pb-1"></div>
+        <div class="overflow-hidden w-full whitespace-nowrap">
+            <div id="videoMarqueeBar" class="animate-marquee flex gap-4"></div>
+        </div>
     </section>
 
     <!-- التبويبات الرئيسية -->
     <div class="max-w-7xl mx-auto px-4 mt-6 w-full">
-        <nav class="flex space-x-2 space-x-reverse bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
-            <button onclick="switchTab('apartments')" id="tab-apartments" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md">
-                <i class="fa-solid fa-house-circle-check"></i> سجل العقارات والشقق
+        <nav class="flex flex-wrap gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+            <button onclick="switchTab('apartments')" id="tab-apartments" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md">
+                <i class="fa-solid fa-house-circle-check"></i> سجل العقارات
             </button>
-            <button onclick="switchTab('add')" id="tab-add" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد + رفع فيديو
+            <button onclick="switchTab('studio')" id="tab-studio" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-photo-film"></i> استوديو الوسائط
             </button>
-            <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                <i class="fa-solid fa-chart-pie"></i> الجرد والتقارير
+            <button onclick="switchTab('add')" id="tab-add" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-circle-plus"></i> إضافة عقار جديد
+            </button>
+            <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-chart-pie"></i> الجرد العام
+            </button>
+            <button onclick="switchTab('agentInventory')" id="tab-agentInventory" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-user-check"></i> جرد المناديب
             </button>
         </nav>
     </div>
@@ -168,7 +183,7 @@
         <!-- التبويب الأول: السجل والفلاتر -->
         <section id="section-apartments" class="space-y-6">
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">حالة العرض</label>
                         <select id="filterStatus" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold">
@@ -206,6 +221,12 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">المندوب المسؤول</label>
+                        <select id="filterAgent" onchange="renderTable()" class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl font-bold text-amber-700">
+                            <option value="">جميع المناديب</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">بحث شامل</label>
                         <input type="text" id="filterSearch" oninput="renderTable()" placeholder="ابحث بالمنطقة، المالك..." class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl">
                     </div>
@@ -222,6 +243,7 @@
                     <table class="w-full text-right border-collapse">
                         <thead>
                             <tr class="bg-slate-900 text-amber-400 text-xs uppercase">
+                                <th class="py-3.5 px-4 font-bold">العقار المميز</th>
                                 <th class="py-3.5 px-4 font-bold">نوع العقار</th>
                                 <th class="py-3.5 px-4 font-bold">الحالة</th>
                                 <th class="py-3.5 px-4 font-bold">العرض</th>
@@ -237,11 +259,21 @@
             </div>
         </section>
 
-        <!-- التبويب الثاني: إضافة/تعديل عقار -->
+        <!-- التبويب الثاني: استوديو الوسائط والفيديوهات -->
+        <section id="section-studio" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-photo-film text-amber-500"></i> استوديو فيديوهات ومعارض العقارات
+                </h2>
+                <div id="mediaStudioContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- التبويب الثالث: إضافة/تعديل عقار -->
         <section id="section-add" class="hidden max-w-4xl mx-auto">
             <div class="bg-white rounded-2xl p-6 shadow-sm border">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد مع رفع فيديو مباشرة</h2>
+                    <h2 id="formTitle" class="text-lg font-bold text-slate-800">إضافة عقار جديد</h2>
                     <button id="cancelEditBtn" onclick="cancelEdit()" class="hidden text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-lg font-bold">إلغاء التعديل</button>
                 </div>
                 <form id="apartmentForm" onsubmit="handleAddProperty(event)" class="space-y-4">
@@ -315,11 +347,21 @@
                         </div>
                     </div>
 
-                    <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200 space-y-2">
-                        <label class="block text-xs font-bold text-amber-900 mb-1"><i class="fa-solid fa-cloud-arrow-up text-amber-600"></i> رفع فيديو معاينة أو إضافة رابط</label>
-                        <input type="file" id="directVideoFileInput" accept="video/*" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <input type="url" id="videoUrlInput" placeholder="أو أضف رابط فيديو يوتيوب / مباشر هنا" class="w-full px-3 py-2 text-xs bg-white border rounded-xl mt-2">
-                        <div id="uploadProgress" class="hidden text-xs font-bold text-indigo-700"><i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الفيديو للسحاب... يرجى الانتظار</div>
+                    <!-- خيار تمييز العقار وعرضه في البار المتحرك العلوي -->
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-black text-amber-900 block">تمييز العقار كعرض مميز</span>
+                            <span class="text-[11px] text-amber-700">تفعيل هذا الخيار سيجعل العقار يتحرك تلقائياً في شريط العروض المميزة بالأعلى</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="isFeaturedInput" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1"><i class="fa-solid fa-link text-amber-600"></i> رابط فيديو المعاينة المباشر (يوتيوب أو رابط فيديو مباشر)</label>
+                        <input type="url" id="videoUrlInput" placeholder="https://..." class="w-full px-3 py-2 text-sm bg-white border rounded-xl">
                     </div>
 
                     <div>
@@ -327,14 +369,14 @@
                         <textarea id="aptNotes" rows="2" placeholder="ملاحظات..." class="w-full px-3 py-2 text-sm bg-slate-50 border rounded-xl"></textarea>
                     </div>
 
-                    <button type="submit" id="saveSubmitBtn" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار والفيديو في السحاب للجميع
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ العقار في السحاب للجميع
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- التبويب الثالث: الجرد والتقارير -->
+        <!-- التبويب الرابع: الجرد العام -->
         <section id="section-inventory" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border-r-4 border-r-amber-500 flex items-center justify-between">
@@ -367,6 +409,16 @@
                 </div>
             </div>
         </section>
+
+        <!-- التبويب الخامس: جرد المناديب -->
+        <section id="section-agentInventory" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border">
+                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-check text-indigo-600"></i> جرد وتقارير أداء المناديب
+                </h2>
+                <div id="agentsInventoryContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
     </main>
 
     <!-- البرمجة السحابية مع Firebase -->
@@ -388,11 +440,11 @@
 
         const kuwaitLocations = {
             "مدينة المطلاع السكنية": ["المطلاع N1", "المطلاع N2", "المطلاع N3", "المطلاع N4", "المطلاع N5", "المطلاع N6", "المطلاع N7", "المطلاع N8", "المطلاع N9", "المطلاع N10", "المطلاع N11", "المطلاع N12"],
-            "محافظة الجهراء": ["جابر الأحمد","القيروان","الصليبخات","شمال غرب الصليبخات", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "كبد"],
+            "محافظة الجهراء": ["جابر الأحمد", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "كبد"],
             "محافظة العاصمة": ["مدينة الكويت", "شرق", "قبله", "الشويخ", "بنيد القار", "الدعية", "القادسية", "الفيحاء", "النزهة", "الخالدية", "كيفان", "اليرموك", "قرطبة", "السرة"],
             "محافظة حولي": ["حولي", "السالمية", "الجابرية", "رميثية", "بيان", "مشرف", "مبارك الكبير", "سلوى", "الزهراء", "الصديق", "السلام", "حطين", "الشهداء"],
-            "محافظة الأحمدي": ["المنقف", "الفحيحيل", "أبو حليفة", "الرقة", "هدية", "الصباحية", "صباح الأحمد السكنية", "صباح الأحمد البحريه", "الخيران السكنية", "الوفرة السكنية", "عقيلة"],
-            "محافظة الفروانية": ["الفروانية", "خيطان", "الفردوس", "العارضية", "الأندلس", "جليب الشيوخ", "اشبيلية", "عبدالله المبارك", "غرب عبدالله المبارك" , "جنوب عبدالله المبارك"],
+            "محافظة الأحمدي": ["المنقف", "الفحيحيل", "أبو حليفة", "الرقة", "هدية", "الصباحية", "صباح الأحمد السكنية", "الخيران السكنية", "الوفرة السكنية", "عقيلة"],
+            "محافظة الفروانية": ["الفروانية", "خيطان", "الفردوس", "العارضية", "الأندلس", "جليب الشيوخ", "اشبيلية", "عبدالله المبارك", "غرب عبدالله المبارك"],
             "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
         };
 
@@ -420,9 +472,10 @@
                     }
                 }
                 initAuthModal();
+                initAgentFilterDropdown();
                 if(isAdmin()) renderUsersList();
             } catch (e) {
-                console.error("خطأ في جلب المستخدمين السحابيين:", e);
+                console.error("خطأ في جلب المستخدمين:", e);
             }
         }
 
@@ -450,6 +503,15 @@
             window.updateCityOptions();
         }
 
+        function initAgentFilterDropdown() {
+            const filterAgent = document.getElementById('filterAgent');
+            if(!filterAgent) return;
+            filterAgent.innerHTML = '<option value="">جميع المناديب</option>';
+            users.forEach(u => {
+                filterAgent.appendChild(new Option(u.name, u.name));
+            });
+        }
+
         window.updateCityOptions = function() {
             const selectedGov = document.getElementById('governorateSelect').value;
             const citySelect = document.getElementById('citySelect');
@@ -469,7 +531,9 @@
                 });
                 renderTable();
                 renderMarqueeBar();
+                renderMediaStudio();
                 renderInventoryDashboard();
+                renderAgentInventoryDashboard();
             } catch (e) {
                 console.error("خطأ في جلب العقارات:", e);
             }
@@ -544,7 +608,7 @@
                         <span class="text-slate-500 font-normal">(باسورد: ${u.password})</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="openEditUserModal('${u.id}')" class="w-7 h-7 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition inline-flex items-center justify-center" title="تعديل الاسم والباسورد"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="openEditUserModal('${u.id}')" class="w-7 h-7 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition inline-flex items-center justify-center" title="تعديل"><i class="fa-solid fa-pen"></i></button>
                         ${u.name !== 'الاء' ? `<button onclick="deleteUser('${u.id}')" class="w-7 h-7 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition inline-flex items-center justify-center" title="حذف"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>
                 </div>
@@ -581,9 +645,9 @@
                 await fetchUsers();
                 closeEditUserModal();
                 updateUserBadge();
-                alert("تم تحديث اسم المستخدم وكلمة السر بنجاح سحابياً!");
+                alert("تم التحديث بنجاح!");
             } catch (err) {
-                alert("حدث خطأ في التحديث: " + err.message);
+                alert("خطأ: " + err.message);
             }
         };
 
@@ -595,7 +659,7 @@
             const userId = "user_" + Date.now();
 
             if(users.some(u => u.name === name)) {
-                alert("هذا المستخدم موجود بالفعل!");
+                alert("المستخدم موجود بالفعل!");
                 return;
             }
 
@@ -604,38 +668,40 @@
                 await fetchUsers();
                 document.getElementById('newUserName').value = '';
                 document.getElementById('newUserPass').value = '';
-                alert("تم إضافة الحساب بنجاح سحابياً للجميع!");
+                alert("تم إضافة الحساب بنجاح سحابياً!");
             } catch (err) {
-                alert("خطأ أثناء إضافة الحساب: " + err.message);
+                alert("خطأ: " + err.message);
             }
         };
 
         window.deleteUser = async function(userId) {
-            if(confirm("هل أنت متأكد من حذف هذا الحساب سحابياً؟")) {
+            if(confirm("هل أنت متأكد من الحذف؟")) {
                 try {
                     await deleteDoc(doc(db, "users", userId));
                     await fetchUsers();
                 } catch(err) {
-                    alert("خطأ أثناء الحذف: " + err.message);
+                    alert("خطأ: " + err.message);
                 }
             }
         };
 
         window.switchTab = function(tabId) {
-            ['apartments', 'add', 'inventory'].forEach(id => {
+            ['apartments', 'studio', 'add', 'inventory', 'agentInventory'].forEach(id => {
                 const sec = document.getElementById(`section-${id}`);
                 const tab = document.getElementById(`tab-${id}`);
                 if(sec) sec.classList.add('hidden');
-                if(tab) tab.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
+                if(tab) tab.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
             });
 
             const targetSec = document.getElementById(`section-${tabId}`);
             const targetTab = document.getElementById(`tab-${tabId}`);
             if(targetSec) targetSec.classList.remove('hidden');
-            if(targetTab) targetTab.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md font-bold";
+            if(targetTab) targetTab.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-amber-500 text-slate-950 shadow-md font-bold";
 
             if(tabId === 'apartments') fetchApartments();
+            if(tabId === 'studio') renderMediaStudio();
             if(tabId === 'inventory') renderInventoryDashboard();
+            if(tabId === 'agentInventory') renderAgentInventoryDashboard();
         };
 
         window.toggleDealTypeFields = function() {
@@ -651,21 +717,6 @@
             }
         };
 
-        async function uploadVideoToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', 'ml_default');
-
-            const res = await fetch('https://api.cloudinary.com/v1_1/demo/video/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!res.ok) throw new Error("فشل الرفع السحابي للفيديو");
-            const data = await res.json();
-            return data.secure_url;
-        }
-
         window.handleAddProperty = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('editIndex').value;
@@ -674,25 +725,6 @@
 
             let originalAgent = currentUser || "مندوب";
             let existingPhone = document.getElementById('ownerPhone').value;
-            let finalVideoUrl = document.getElementById('videoUrlInput').value || '';
-
-            const videoFile = document.getElementById('directVideoFileInput').files[0];
-            const progress = document.getElementById('uploadProgress');
-            const btn = document.getElementById('saveSubmitBtn');
-
-            if (videoFile) {
-                try {
-                    progress.classList.remove('hidden');
-                    btn.disabled = true;
-                    finalVideoUrl = await uploadVideoToCloudinary(videoFile);
-                } catch (err) {
-                    console.warn("تعذر الرفع السحابي المباشر، جاري الحفظ بالرابط المحلي:", err);
-                    finalVideoUrl = URL.createObjectURL(videoFile);
-                } finally {
-                    progress.classList.add('hidden');
-                    btn.disabled = false;
-                }
-            }
 
             if (editId !== "") {
                 const found = apartments.find(a => a.id === editId);
@@ -716,7 +748,8 @@
                 price: dealTypeVal === 'للبدل' ? 0 : (Number(document.getElementById('aptPrice').value) || 0),
                 swapOffered: dealTypeVal === 'للبدل' ? document.getElementById('swapOffered').value : '',
                 swapRequired: dealTypeVal === 'للبدل' ? document.getElementById('swapRequired').value : '',
-                videoUrl: finalVideoUrl,
+                videoUrl: document.getElementById('videoUrlInput').value || '',
+                isFeatured: document.getElementById('isFeaturedInput').checked,
                 notes: document.getElementById('aptNotes').value,
                 agent: originalAgent,
                 updatedAt: new Date().toISOString()
@@ -724,13 +757,12 @@
 
             try {
                 await setDoc(doc(db, "apartments", aptId), newApt);
-                alert("تم حفظ العقار بنجاح في السحاب وتزامن مع الجميع!");
+                alert("تم حفظ العقار في السحاب بنجاح!");
                 cancelEdit();
                 await fetchApartments();
                 switchTab('apartments');
             } catch (error) {
-                console.error("خطأ بالحفظ السحابي:", error);
-                alert("حدث خطأ أثناء الحفظ: " + error.message);
+                alert("خطأ أثناء الحفظ: " + error.message);
             }
         };
 
@@ -739,6 +771,7 @@
             const dealTypeF = document.getElementById('filterDealType')?.value || '';
             const propTypeF = document.getElementById('filterPropType')?.value || '';
             const govF = document.getElementById('filterGov')?.value || '';
+            const agentF = document.getElementById('filterAgent')?.value || '';
             const searchF = document.getElementById('filterSearch')?.value.toLowerCase() || '';
 
             const tbody = document.getElementById('apartmentsTableBody');
@@ -750,18 +783,18 @@
                 const matchDeal = !dealTypeF || apt.dealType === dealTypeF;
                 const matchProp = !propTypeF || apt.propType === propTypeF;
                 const matchGov = !govF || apt.governorate === govF;
+                const matchAgent = !agentF || apt.agent === agentF;
                 const matchSearch = (apt.city || '').toLowerCase().includes(searchF) || 
                                     (apt.ownerName || '').toLowerCase().includes(searchF) || 
-                                    (apt.notes || '').toLowerCase().includes(searchF) ||
-                                    (apt.agent || '').toLowerCase().includes(searchF);
-                return matchStatus && matchDeal && matchProp && matchGov && matchSearch;
+                                    (apt.notes || '').toLowerCase().includes(searchF);
+                return matchStatus && matchDeal && matchProp && matchGov && matchAgent && matchSearch;
             });
 
             const resCount = document.getElementById('resultsCount');
             if(resCount) resCount.innerText = `عرض ${filtered.length} من إجمالي ${apartments.length} عقار بالشركة`;
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-bold">لا توجد عقارات مطابقة للفلاتر المطلوبة</td></tr>`;
                 return;
             }
 
@@ -769,7 +802,9 @@
                 let statusBadge = '';
                 if (apt.status === 'متاحة') statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">متاح</span>';
                 else if (apt.status === 'محجوزة') statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800">محجوز</span>';
-                else statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800">مباع / تم البدل</span>';
+                else statusBadge = '<span class="px-2.5 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800">مباع</span>';
+
+                let featuredBadge = apt.isFeatured ? '<span class="px-2 py-0.5 bg-amber-500 text-slate-950 font-black rounded-lg text-xs"><i class="fa-solid fa-star"></i> مميز</span>' : '<span class="text-slate-400 text-xs">عادي</span>';
 
                 let priceOrSwapDisplay = apt.dealType === 'للبدل' ? 
                     `<div class="text-xs space-y-1 bg-amber-50 p-2 rounded-lg border border-amber-200"><div class="text-amber-900 font-bold">الموفر: ${apt.swapOffered || '-'}</div></div>` : 
@@ -799,6 +834,7 @@
                 };
 
                 tr.innerHTML = `
+                    <td class="py-3.5 px-4">${featuredBadge}</td>
                     <td class="py-3.5 px-4 font-black text-slate-800">${apt.propType || '-'}</td>
                     <td class="py-3.5 px-4">${statusBadge}</td>
                     <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-800">${apt.dealType || '-'}</span></td>
@@ -816,7 +852,7 @@
             if(!apt) return;
 
             document.getElementById('modalPropTitle').innerText = `${apt.propType} - ${apt.governorate} (${apt.city})`;
-            document.getElementById('modalPropBadge').innerHTML = `${apt.dealType} | ${apt.status} | الإشراف: ${apt.agent}`;
+            document.getElementById('modalPropBadge').innerHTML = `${apt.dealType} | ${apt.status} | المندوب المسؤول: ${apt.agent}`;
             
             const userCanSeePhone = canModify(apt.agent);
             const phoneBox = document.getElementById('modalPhoneBox');
@@ -854,7 +890,7 @@
             if(!apt) return;
 
             if(!canModify(apt.agent)) {
-                alert("عذراً، هذا العقار أضافه مندوب آخر ولا تملك صلاحية تعديله!");
+                alert("عذراً، لا تملك صلاحية تعديل هذا العقار!");
                 return;
             }
 
@@ -875,11 +911,12 @@
             document.getElementById('swapOffered').value = apt.swapOffered || '';
             document.getElementById('swapRequired').value = apt.swapRequired || '';
             document.getElementById('videoUrlInput').value = apt.videoUrl || '';
+            document.getElementById('isFeaturedInput').checked = !!apt.isFeatured;
             document.getElementById('aptNotes').value = apt.notes || '';
 
             toggleDealTypeFields();
 
-            document.getElementById('formTitle').innerText = "تعديل عقار في النظام";
+            document.getElementById('formTitle').innerText = "تعديل العقار";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
 
             switchTab('add');
@@ -888,13 +925,13 @@
         window.cancelEdit = function() {
             document.getElementById('apartmentForm').reset();
             document.getElementById('editIndex').value = '';
-            document.getElementById('formTitle').innerText = "إضافة عقار جديد مع رفع فيديو مباشرة";
+            document.getElementById('formTitle').innerText = "إضافة عقار جديد";
             document.getElementById('cancelEditBtn').classList.add('hidden');
             toggleDealTypeFields();
         };
 
         window.resetFilters = function() {
-            ['filterStatus', 'filterDealType', 'filterPropType', 'filterGov', 'filterSearch'].forEach(id => {
+            ['filterStatus', 'filterDealType', 'filterPropType', 'filterGov', 'filterAgent', 'filterSearch'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) el.value = '';
             });
@@ -910,12 +947,12 @@
                 return;
             }
 
-            if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+            if(confirm("هل أنت متأكد من الحذف؟")) {
                 try {
                     await deleteDoc(doc(db, "apartments", id));
                     await fetchApartments();
                 } catch(e) {
-                    console.error("خطأ بالحذف:", e);
+                    alert("خطأ أثناء الحذف: " + e.message);
                 }
             }
         };
@@ -924,16 +961,54 @@
             const bar = document.getElementById('videoMarqueeBar');
             if(!bar) return;
             bar.innerHTML = '';
-            const withVideo = apartments.filter(a => a.videoUrl);
-            if(withVideo.length === 0) {
-                bar.innerHTML = '<span class="text-xs text-slate-500 px-4">لا توجد فيديوهات معاينة حالياً</span>';
+            // تصفية العروض المميزة فقط التي تحتوي على فيديوهات
+            const featuredWithVideo = apartments.filter(a => a.isFeatured && a.videoUrl);
+            
+            if(featuredWithVideo.length === 0) {
+                bar.innerHTML = '<span class="text-xs text-slate-500 px-4">لا توجد عروض مميزة بفيديو حالياً (قم بتفعيل خيار مميز عند إضافة العقار)</span>';
                 return;
             }
-            withVideo.forEach((apt) => {
-                const idx = apartments.findIndex(a => a.id === apt.id);
-                bar.innerHTML += `
-                    <div onclick="openDetailsModal(${idx})" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-white text-xs font-bold cursor-pointer hover:border-amber-500 transition shrink-0 flex items-center gap-2">
-                        <i class="fa-solid fa-play text-amber-500"></i> ${apt.governorate} - ${apt.city} (${apt.propType})
+            
+            // تكرار العناصر لضمان استمرارية الحركة السلسة للـ Marquee
+            let htmlContent = '';
+            for(let i = 0; i < 2; i++) {
+                featuredWithVideo.forEach((apt) => {
+                    const idx = apartments.findIndex(a => a.id === apt.id);
+                    htmlContent += `
+                        <div onclick="openDetailsModal(${idx})" class="bg-slate-900 border border-amber-500/50 px-4 py-2 rounded-xl text-white text-xs font-bold cursor-pointer hover:bg-slate-800 transition shrink-0 flex items-center gap-2 shadow-md">
+                            <i class="fa-solid fa-star text-amber-400"></i> ${apt.governorate} - ${apt.city} (${apt.propType}) — <span class="text-amber-300">${apt.dealType}</span>
+                        </div>
+                    `;
+                });
+            }
+            bar.innerHTML = htmlContent;
+        }
+
+        function renderMediaStudio() {
+            const container = document.getElementById('mediaStudioContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const withVideo = apartments.filter(a => a.videoUrl);
+            if(withVideo.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 col-span-full text-center py-10">لا توجد فيديوهات معاينة مرفوعة في الاستوديو حالياً.</p>';
+                return;
+            }
+
+            withVideo.forEach(apt => {
+                container.innerHTML += `
+                    <div class="bg-slate-50 border rounded-2xl p-4 shadow-sm space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-black">${apt.propType}</span>
+                                <span class="text-xs font-bold text-slate-600">${apt.governorate} - ${apt.city}</span>
+                            </div>
+                            <video src="${apt.videoUrl}" controls class="w-full h-44 rounded-xl bg-black object-cover"></video>
+                        </div>
+                        <div class="text-xs text-slate-700 font-semibold space-y-1">
+                            <div>نوع العرض: <strong class="text-slate-900">${apt.dealType}</strong></div>
+                            <div>المندوب المسؤول: <strong class="text-amber-600">${apt.agent}</strong></div>
+                        </div>
                     </div>
                 `;
             });
@@ -944,6 +1019,35 @@
             document.getElementById('kpiAvailable').innerText = apartments.filter(a => a.status === 'متاحة').length;
             document.getElementById('kpiSwap').innerText = apartments.filter(a => a.dealType === 'للبدل' || a.dealType === 'طلب').length;
             document.getElementById('kpiSold').innerText = apartments.filter(a => a.status === 'مباعة').length;
+        }
+
+        function renderAgentInventoryDashboard() {
+            const container = document.getElementById('agentsInventoryContainer');
+            if(!container) return;
+            container.innerHTML = '';
+
+            users.forEach(u => {
+                const agentApts = apartments.filter(a => a.agent === u.name);
+                const total = agentApts.length;
+                const available = agentApts.filter(a => a.status === 'متاحة').length;
+                const sold = agentApts.filter(a => a.status === 'مباعة').length;
+                const swap = agentApts.filter(a => a.dealType === 'للبدل' || a.dealType === 'طلب').length;
+
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+                        <div class="flex justify-between items-center pb-2 border-b">
+                            <h3 class="font-black text-slate-900 text-sm"><i class="fa-solid fa-user-tie text-amber-500"></i> ${u.name}</h3>
+                            <span class="text-[11px] px-2 py-0.5 bg-slate-100 rounded font-bold">${u.role === 'admin' ? 'أدمن' : 'مندوب'}</span>
+                        </div>
+                        <div class="space-y-2 text-xs font-bold text-slate-600">
+                            <div class="flex justify-between"><span>إجمالي العقارات:</span> <span class="text-slate-900 font-black">${total}</span></div>
+                            <div class="flex justify-between"><span>العقارات المتاحة:</span> <span class="text-emerald-600 font-black">${available}</span></div>
+                            <div class="flex justify-between"><span>عروض البدل والطلبات:</span> <span class="text-indigo-600 font-black">${swap}</span></div>
+                            <div class="flex justify-between"><span>العقارات المباعة:</span> <span class="text-rose-600 font-black">${sold}</span></div>
+                        </div>
+                    </div>
+                `;
+            });
         }
     </script>
 </body>
