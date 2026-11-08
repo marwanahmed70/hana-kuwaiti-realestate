@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هنا الكويتية للعقارات والمقاولات </title>
+    <title>هنا الكويتية للعقارات والمقاولات - مروان عمر</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -211,6 +211,9 @@
                             <option value="دور كامل">دور كامل</option>
                             <option value="دوبلكس">دوبلكس</option>
                             <option value="بيت">بيت</option>
+                            <option value="قسيمة">قسيمة</option>
+                            <option value="استديو">استديو</option>
+                            <option value="سرداب">سرداب</option>
                             <option value="أرض">أرض</option>
                         </select>
                     </div>
@@ -307,6 +310,9 @@
                                 <option value="دور كامل">دور كامل</option>
                                 <option value="دوبلكس">دوبلكس</option>
                                 <option value="بيت">بيت</option>
+                                <option value="قسيمة">قسيمة</option>
+                                <option value="استديو">استديو</option>
+                                <option value="سرداب">سرداب</option>
                                 <option value="أرض">أرض</option>
                             </select>
                         </div>
@@ -322,7 +328,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة / المنطقة الرئيسية *</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">المافظة / المنطقة الرئيسية *</label>
                             <select id="governorateSelect" onchange="updateCityOptions()" required class="w-full px-3 py-2 text-sm bg-white border rounded-xl font-bold"></select>
                         </div>
                         <div>
@@ -363,7 +369,7 @@
                     <div class="bg-slate-50 p-4 rounded-xl border space-y-2">
                         <label class="block text-xs font-bold text-slate-700 mb-1"><i class="fa-solid fa-link text-amber-600"></i> رابط فيديو المعاينة (Google Drive أو يوتيوب) — حفظ فوري بدون انتظار</label>
                         <input type="url" id="videoUrlInput" placeholder="أضف رابط جوجل درايف أو يوتيوب هنا..." class="w-full px-3 py-2 text-sm bg-white border rounded-xl">
-                        <p class="text-[11px] text-slate-500">💡 الصق رابط Google Drive (بعد جعله متاحاً لأي شخص لديه الرابط) أو رابط يوتيوب، وسيعمل فوراً بدون شاشات سوداء!</p>
+                        <p class="text-[11px] text-slate-500">💡 الصق رابط Google Drive (بعد جعله متاحاً لأي شخص لديه الرابط) أو رابط يوتيوب، وسيعمل فوراً بدون شاشات سوداء[cite: 1]!</p>
                     </div>
 
                     <div>
@@ -440,13 +446,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // المناطق والمحافظات المحدثة بالكامل
         const kuwaitLocations = {
             "مدينة المطلاع السكنية": ["المطلاع N1", "المطلاع N2", "المطلاع N3", "المطلاع N4", "المطلاع N5", "المطلاع N6", "المطلاع N7", "المطلاع N8", "المطلاع N9", "المطلاع N10", "المطلاع N11", "المطلاع N12"],
-            "محافظة الجهراء": ["جابر الأحمد", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "كبد"],
+            "محافظة الجهراء": ["جابر الأحمد", "القيروان", "الصليبخات", "شمال غرب الصليبخات", "الجهراء القديمة", "النسيم", "العيون", "الواحة", "سعد العبدالله", "القصر", "كبد"],
             "محافظة العاصمة": ["مدينة الكويت", "شرق", "قبله", "الشويخ", "بنيد القار", "الدعية", "القادسية", "الفيحاء", "النزهة", "الخالدية", "كيفان", "اليرموك", "قرطبة", "السرة"],
             "محافظة حولي": ["حولي", "السالمية", "الجابرية", "رميثية", "بيان", "مشرف", "مبارك الكبير", "سلوى", "الزهراء", "الصديق", "السلام", "حطين", "الشهداء"],
-            "محافظة الأحمدي": ["المنقف", "الفحيحيل", "أبو حليفة", "الرقة", "هدية", "الصباحية", "صباح الأحمد السكنية", "الخيران السكنية", "الوفرة السكنية", "عقيلة"],
-            "محافظة الفروانية": ["الفروانية", "خيطان", "الفردوس", "العارضية", "الأندلس", "جليب الشيوخ", "اشبيلية", "عبدالله المبارك", "غرب عبدالله المبارك"],
+            "محافظة الأحمدي": ["المنقف", "الفحيحيل", "أبو حليفة", "الرقة", "هدية", "الصباحية", "صباح الأحمد السكنية", "صباح الأحمد البحريه", "الخيران السكنية", "الوفرة السكنية", "عقيلة"],
+            "محافظة الفروانية": ["الفروانية", "خيطان", "الفردوس", "العارضية", "الأندلس", "جليب الشيوخ", "اشبيلية", "عبدالله المبارك", "غرب عبدالله المبارك", "جنوب عبدالله المبارك"],
             "محافظة مبارك الكبير": ["مبارك الكبير", "العدان", "القصور", "القرين", "المسيلة", "أبو فطيرة", "الفنيطيس", "صباح السالم"]
         };
 
@@ -719,11 +726,10 @@
             }
         };
 
-        // دالة ذكية لعرض وتشغيل فيديوهات Google Drive ويوتيوب والروابط المباشرة بدون شاشات سوداء
+        // دالة تشغيل الفيديوهات الذكية (Google Drive، يوتيوب، روابط مباشرة)
         function getEmbedMediaHTML(url) {
             if (!url) return '<p class="text-xs text-slate-400">لا يوجد فيديو</p>';
             
-            // معالجة روابط Google Drive
             if (url.includes('drive.google.com')) {
                 let fileId = '';
                 const match = url.match(/\/d\/([^\/]+)/) || url.match(/id=([^&]+)/);
@@ -733,7 +739,6 @@
                 }
             }
 
-            // معالجة روابط يوتيوب
             if (url.includes('youtube.com') || url.includes('youtu.be')) {
                 let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 let match = url.match(regExp);
@@ -743,7 +748,6 @@
                 }
             }
 
-            // الروابط المباشرة الأخرى
             return `<video src="${url}" controls class="w-full h-44 rounded-xl bg-black object-cover" preload="metadata"></video>`;
         }
 
