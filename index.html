@@ -471,10 +471,7 @@
 
                 if (users.length === 0) {
                     const defaultUsers = [
-                        { id: "user_alaa", name: "الاء", password: "123", role: "admin" },
-                        { id: "user_abu_omar", name: "ابو عمر", password: "123", role: "agent" },
-                        { id: "user_abu_salah", name: "ابو صلاح", password: "123", role: "agent" }
-                    ];
+                        { id: "user_alaa", name: "حياه", password: "12345678900", role: "admin" }                    ];
                     for(let u of defaultUsers) {
                         await setDoc(doc(db, "users", u.id), u);
                         users.push(u);
